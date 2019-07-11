@@ -1,0 +1,4 @@
+name = "EnKF"
+uuid = "685896a8-a41b-11e9-3419-3315e75b5d74"
+authors = ["mleprovost <mathow@g.ucla.edu>"]
+version = "0.1.0"
