@@ -33,7 +33,7 @@ drawn from a random distribution
 """
 
 
-struct AdditiveInflation{N} <: InflationType
+mutable struct AdditiveInflation{N} <: InflationType
 
     "Distribution of the additive inflation α"
     α::MultivariateDistribution
@@ -48,7 +48,7 @@ function AdditiveInflation(N::Int)
 end
 
 
-
+# MvNormal(μ, σ) where σ is the standard deviation and not the covariance
 
 """
     size(A::AdditiveInflation) -> Tuple{Int...}
@@ -72,7 +72,7 @@ mean(A::AdditiveInflation{N}) where {N} = mean(A.α)
 
 var(A::AdditiveInflation{N}) where {N} = var(A.α)
 
-std(A::AdditiveInflation{N}) where {N} = std(A.α)
+# std(A::AdditiveInflation{N}) where {N} = std(A.α)
 
 # Define action of AdditiveInflation
 
@@ -93,7 +93,7 @@ Define multiplicative inflation: x̃⁻ <- x̂⁻ + β*(x̃⁻ - x̂⁻) with β
 """
 
 
-struct MultiplicativeInflation{N} <: InflationType
+mutable struct MultiplicativeInflation{N} <: InflationType
 
     "Multiplicative inflation factor β"
     β::Real
@@ -108,6 +108,17 @@ end
 function MultiplicativeInflation(N::Int,β::Real)
     return MultiplicativeInflation{N}(β)
 end
+
+
+
+"""
+    length(A::MultiplicativeInflation) -> Int
+
+Return the dimension of the multiplicative inflation
+
+"""
+Base.length(A::MultiplicativeInflation{N}) where {N} = N
+
 
 # Define action of MultiplicativeInflation
 
@@ -131,7 +142,7 @@ Define multiplico-additive inflation: x̃⁻ <- x̂⁻ + β*(x̃⁻ - x̂⁻)  +
 """
 
 
-struct MultiAdditiveInflation{N} <: InflationType
+mutable struct MultiAdditiveInflation{N} <: InflationType
 
     "Multiplicative inflation factor β"
     β::Real
@@ -151,3 +162,25 @@ end
 function MultiAdditiveInflation(N::Int,β::Real,α::MultivariateDistribution)
     return MultiAdditiveInflation{N}(β, α)
 end
+
+
+"""
+    size(A::MultiAdditiveInflation) -> Tuple{Int...}
+
+Return the dimension of the additive inflation
+
+"""
+Base.size(A::MultiAdditiveInflation{N}) where {N}= size(A.α)
+
+"""
+    length(A::MultiAdditiveInflation) -> Int
+
+Return the dimension of the additive inflation
+
+"""
+Base.length(A::MultiAdditiveInflation{N}) where {N} = length(A.α)
+
+
+mean(A::MultiAdditiveInflation{N}) where {N} = mean(A.α)
+
+var(A::MultiAdditiveInflation{N}) where {N} = var(A.α)
