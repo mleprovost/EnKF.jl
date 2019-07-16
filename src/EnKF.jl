@@ -1,5 +1,5 @@
 module EnKF
 
-greet() = print("Hello World!")
+include("inflation.jl")
 
 end # module
