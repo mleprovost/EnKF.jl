@@ -25,18 +25,23 @@ Fields:
 
 mutable struct EnsembleState{N, NS, TS}
     " Array of the different ensemble members"
-    S::Array{TS,1}
+    S::Array{Array{TS,1},1}
 end
 
 # Return an ensemble of P members where each member is an
 # array of type TT and dimension NT
-function EnsembleState(N::Int, NS::Int; TS = Array{Float64,1})
+function EnsembleState(N::Int, NS::Int; TS = Float64)
 
-    return EnsembleState{N, NS, TS}([zeros(NS) for i = 1:N])
+    return EnsembleState{N, NS, TS}([zeros(TS, NS) for i = 1:N])
+end
+
+function EnsembleState(NT::Tuple{Int, Int}; TS = Float64)
+    N, NS = NT
+    return EnsembleState{N, NS, TS}([zeros(TS, N) for i = 1:N])
 end
 
 
-function EnsembleState(States::Array{T,1}) where {T}
+function EnsembleState(States::Array{Array{T,1},1}) where {T}
     N = length(States)
     NS = size(States[1])[1]
     return EnsembleState{N, NS, T}(States)
@@ -50,10 +55,20 @@ size(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS} = (N, NS)
 mean(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS} = mean(ENS.S)
 
 
-function deviation(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS}
-    S̄ = mean(ENS)
+function deviation!(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS}
+    S̄ = deepcopy(mean(ENS))
      for s in ENS.S
          s .-= S̄
      end
      return ENS
  end
+
+
+ function deviation(ENSfluc::EnsembleState{N, NS, TS}, ENS::EnsembleState{N, NS, TS})  where {N, NS, TS}
+     S̄ = deepcopy(mean(ENS))
+     ENSfluc.S .= deepcopy(ENS.S)
+      for s in ENSfluc.S
+          s .-= S̄
+      end
+      return ENSfluc
+  end
