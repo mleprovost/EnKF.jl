@@ -107,57 +107,65 @@ end
 #
 # end
 
-# Define action of ENKF on EnsembleState
-# function (enkf::ENKF{N, NS, TS, NZ, TZ})(t::Float64, Δt::Float64, ENS::EnsembleState{N, NS, TS}) where {N, NS, TS, NZ, TZ}
-#
-#     "Propagate each ensemble member"
-#     enkf.f(t, ENS)
-#
-#     "Covariance inflation if 'isinflated==true' "
-#     if isinflated ==true
-#         enkf.A(ENS)
-#     end
-#
-#     "Compute mean and deviation"
-#     Ŝ = deepcopy(mean(ENS))
-#
-#     ENSfluc = EnsembleState(size(ENS))
-#
-#     deviation(ENSfluc, ENS)
-#
-#     "Compute measurement"
-#     mENS = EnsembleState((N, NZ))
-#     m(t, mENS, ENS)
-#
-#     mENS .-= m(t, Ŝ)
-#
-#     "Get actual measurement"
-#     zENS = EnsembleState((N, NZ))
-#
-#     "Perturb actual measurement"
-#     ϵ(zENS)
-#
-#
-#     "Analysis step with representers, Evensen, et al. 1998"
-#
-#     # Construct
-#
+" Define action of ENKF on EnsembleState "
+function (enkf::ENKF{N, NS, TS, NZ, TZ})(t::Float64,
+         Δt::Float64,
+         ens::EnsembleState{N, NS, TS}) where {N, NS, TS, NZ, TZ}
+
+    "Propagate each ensemble member"
+    enkf.f(t, ens)
+
+    "Covariance inflation if 'isinflated==true' "
+    if enkf.isinflated ==true
+        enkf.A(ens)
+    end
+
+    "Compute mean and deviation"
+    Ŝ = deepcopy(mean(ens))
+
+    ensfluc = EnsembleState(size(ens))
+
+    deviation(ensfluc, ens)
+
+    A′ = hcat(ensfluc)
+
+    "Compute measurement"
+    mens = EnsembleState((N, NZ))
+    enkf.m(t, mens, ens)
+
+    Â = hcat(deepcopy(mens))
+
+    "Compute deviation from measurement of the mean"
+    Â′  = Â .- enkf.m(t, mean(ens))
+
+    "Get actual measurement"
+    zens = EnsembleState((N, NZ))
+    enkf.z(t+Δt, zens)
+
+    "Perturb actual measurement"
+    ϵ(zens)
+
+    D = hcat(zens)
 
 
+    "Analysis step with representers, Evensen, Leeuwen et al. 1998"
+
+    if enkf.isaugmented ==true
+    "Construct representers"
+
+    b = ((Â′*Â′') + (N-1)*cov(enkf.ϵ)*I) \ (D - Â)
+
+    Bᵀb = (A′*Â′')*b
 
 
+    "Analysis step"
+    ens += cut(Bᵀb)
 
+    end
 
+    return ens
 
-
-
-
-
-
-
-
-
-
+end
 
 size(ENS::ENKF{N, NS, TS, NZ, TZ}) where {N, NS, TS, NZ, TZ} = (N, NS, NZ)
 

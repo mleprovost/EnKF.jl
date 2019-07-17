@@ -1,9 +1,9 @@
 
 using Distributions, Statistics, LinearAlgebra
 
-import Base: size, length
+import Base: size, length, *
 
-import Statistics: mean, var, std
+import Statistics: mean, var, std, cov
 
 export InflationType, AdditiveInflation, MultiplicativeInflation,
         MultiAdditiveInflation
@@ -71,6 +71,8 @@ Base.length(A::AdditiveInflation{NS}) where {NS} = length(A.α)
 mean(A::AdditiveInflation{NS}) where {NS} = mean(A.α)
 
 var(A::AdditiveInflation{NS}) where {NS} = var(A.α)
+
+cov(A::AdditiveInflation{NS}) where {NS} = cov(A.α)
 
 # std(A::AdditiveInflation{NS}) where {NS} = std(A.α)
 
@@ -140,8 +142,6 @@ function (A::MultiplicativeInflation{NS})(ENS::EnsembleState{N, NS, TS}) where {
 end
 
 
-
-
 """
     MultiAdditiveInflation
 
@@ -199,6 +199,8 @@ Base.length(A::MultiAdditiveInflation{NS}) where {NS} = length(A.α)
 mean(A::MultiAdditiveInflation{NS}) where {NS} = mean(A.α)
 
 var(A::MultiAdditiveInflation{NS}) where {NS} = var(A.α)
+
+cov(A::MultiAdditiveInflation{NS}) where {NS} = cov(A.α)
 
 
 "Define action of MultiplicativeInflation : x <- x̂ + β*(x - x̂)"
