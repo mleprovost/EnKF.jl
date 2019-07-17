@@ -23,6 +23,15 @@ EnS = EnsembleState(4, 5)
 @test EnS.S[1] == zeros(5)
 
 
+A = MvNormal(ones(5), I)
+out = initialize(10, A)
+out̄ = mean(out)
 
+out̃1 = out.S[1] .- out̄
+out̃2 = out.S[2] .- out̄
 
+fluc = deviation(out)
+
+@test fluc.S[1] == out̃1
+@test fluc.S[2] == out̃2
 end

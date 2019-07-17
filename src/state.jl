@@ -5,7 +5,7 @@ import Base: size, length
 
 import Statistics: mean, var, std
 
-export EnsembleState
+export EnsembleState, deviation
 
 """
     EnsembleState
@@ -48,3 +48,12 @@ size(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS} = (N, NS)
 
 # Return the mean of all the ensemble member
 mean(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS} = mean(ENS.S)
+
+
+function deviation(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS}
+    S̄ = mean(ENS)
+     for s in ENS.S
+         s .-= S̄
+     end
+     return ENS
+ end
