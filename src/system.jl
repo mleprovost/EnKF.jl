@@ -5,11 +5,16 @@ import Base: size, length, show
 
 import Statistics: mean, var, std
 
-abstract type PropagationFunction end
+export  PropagationFunction,
+        MeasurementFunction,
+        RealMeasurementFunction,
+        ENKF
 
-abstract type MeasurementFunction end
+struct PropagationFunction end
 
-abstract type RealMeasurementFunction end
+struct MeasurementFunction end
+
+struct RealMeasurementFunction end
 
 
 
@@ -58,7 +63,7 @@ mutable struct ENKF{N, NS, TS, NZ, TZ}
     z::RealMeasurementFunction
 
     "Measurement noise distribution"
-    ϵ::AdditiveInflation{NS}
+    ϵ::AdditiveInflation{NZ}
 
     "Boolean: is state vector inflated"
     isinflated::Bool
@@ -103,42 +108,40 @@ end
 # end
 
 # Define action of ENKF on EnsembleState
-function (enkf::ENKF{N, NS, TS, NZ, TZ})(t::Float64, Δt::Float64, ENS::EnsembleState{N, NS, TS}) where {N, NS, TS, NZ, TZ}
-
-    "Propagate each ensemble member"
-    enkf.f(t, ENS)
-
-    "Covariance inflation if 'isinflated==true' "
-    if isinflated ==true
-        enkf.A(ENS)
-    end
-
-    "Compute mean and deviation"
-    Ŝ = deepcopy(mean(ENS))
-
-    ENSfluc = EnsembleState(size(ENS))
-
-    deviation(ENSfluc, ENS)
-
-    "Compute measurement"
-    mENS = EnsembleState((N, NZ))
-    m(t, mENS, ENS)
-
-    mENS .-= m(t, Ŝ)
-
-    "Get actual measurement"
-    zENS = EnsembleState((N, NZ))
-
-
-
-
-
-
-
-
-
-
-
+# function (enkf::ENKF{N, NS, TS, NZ, TZ})(t::Float64, Δt::Float64, ENS::EnsembleState{N, NS, TS}) where {N, NS, TS, NZ, TZ}
+#
+#     "Propagate each ensemble member"
+#     enkf.f(t, ENS)
+#
+#     "Covariance inflation if 'isinflated==true' "
+#     if isinflated ==true
+#         enkf.A(ENS)
+#     end
+#
+#     "Compute mean and deviation"
+#     Ŝ = deepcopy(mean(ENS))
+#
+#     ENSfluc = EnsembleState(size(ENS))
+#
+#     deviation(ENSfluc, ENS)
+#
+#     "Compute measurement"
+#     mENS = EnsembleState((N, NZ))
+#     m(t, mENS, ENS)
+#
+#     mENS .-= m(t, Ŝ)
+#
+#     "Get actual measurement"
+#     zENS = EnsembleState((N, NZ))
+#
+#     "Perturb actual measurement"
+#     ϵ(zENS)
+#
+#
+#     "Analysis step with representers, Evensen, et al. 1998"
+#
+#     # Construct
+#
 
 
 
@@ -146,10 +149,19 @@ function (enkf::ENKF{N, NS, TS, NZ, TZ})(t::Float64, Δt::Float64, ENS::Ensemble
 
 
 
-function size()
 
 
-function Base.show(io::IO, sys::ENKF{N, NS, TS, NZ, TZ})
-    where {N, NS, TS, NZ, TZ}
-    print(io, "Ensemble Kalman filter with $N members of state with length $NS and measurement vector of length $NZ")
+
+
+
+
+
+
+
+
+size(ENS::ENKF{N, NS, TS, NZ, TZ}) where {N, NS, TS, NZ, TZ} = (N, NS, NZ)
+
+
+function Base.show(io::IO, sys::ENKF{N, NS, TS, NZ, TZ}) where {N, NS, TS, NZ, TZ}
+    print(io, "Ensemble Kalman filter with $N members of state of length $NS and measurement vector of length $NZ")
 end

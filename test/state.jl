@@ -6,6 +6,7 @@ using EnKF
 
 @testset "EnsembleState" begin
 
+# Test size and initialize
 States = [randn(10) for i = 1:4]
 
 EnS = EnsembleState(States)
@@ -23,6 +24,7 @@ EnS = EnsembleState(4, 5)
 @test EnS.S[1] == zeros(5)
 
 
+# Test mean and deviation
 A = MvNormal(ones(5), I)
 out = initialize(10, A)
 out̄ = mean(out)
@@ -30,8 +32,24 @@ out̄ = mean(out)
 out̃1 = out.S[1] .- out̄
 out̃2 = out.S[2] .- out̄
 
-fluc = deviation(out)
+fluc = EnsembleState(10,5)
+deviation(fluc, out)
 
 @test fluc.S[1] == out̃1
 @test fluc.S[2] == out̃2
+
+# Test addition and substraction
+ENS1 = initialize(10,4)
+
+ENS2 = initialize(10,4)
+
+ENS3 = EnsembleState(10,4)
+
+ENS3 = ENS1 + ENS2
+@test ENS1.S + ENS2.S == ENS3.S
+
+ENS4 = EnsembleState(10,4)
+
+ENS4 = ENS1- ENS2
+@test ENS1.S - ENS2.S == ENS4.S
 end

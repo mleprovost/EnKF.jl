@@ -1,11 +1,11 @@
 
 using Distributions, Statistics, LinearAlgebra
 
-import Base: size, length
+import Base: size, length, hcat, +, -, fill!
 
 import Statistics: mean, var, std
 
-export EnsembleState, deviation
+export EnsembleState, deviation!, deviation
 
 """
     EnsembleState
@@ -37,7 +37,7 @@ end
 
 function EnsembleState(NT::Tuple{Int, Int}; TS = Float64)
     N, NS = NT
-    return EnsembleState{N, NS, TS}([zeros(TS, N) for i = 1:N])
+    return EnsembleState{N, NS, TS}([zeros(TS, NS) for i = 1:N])
 end
 
 
@@ -64,11 +64,54 @@ function deviation!(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS}
  end
 
 
- function deviation(ENSfluc::EnsembleState{N, NS, TS}, ENS::EnsembleState{N, NS, TS})  where {N, NS, TS}
-     S̄ = deepcopy(mean(ENS))
-     ENSfluc.S .= deepcopy(ENS.S)
-      for s in ENSfluc.S
-          s .-= S̄
-      end
-      return ENSfluc
+function deviation(ENSfluc::EnsembleState{N, NS, TS}, ENS::EnsembleState{N, NS, TS})  where {N, NS, TS}
+ S̄ = deepcopy(mean(ENS))
+ ENSfluc.S .= deepcopy(ENS.S)
+  for s in ENSfluc.S
+      s .-= S̄
   end
+  return ENSfluc
+end
+
+function deviation(tabfluc::Array{TS,2}, ENS::EnsembleState{N, NS, TS})  where {N, NS, TS}
+ S̄ = deepcopy(mean(ENS))
+ tabfluc .= hcat(deepcopy(ENS))
+ tabfluc .-= S̄
+   return tabfluc
+end
+
+function hcat(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS}
+   return hcat(ENS.S...)
+end
+
+
+"Fill ensemble state"
+
+function fill!(ENS::EnsembleState{N, NS, TS}, A::Array{Array{TS,1},1})  where {N, NS, TS}
+    ENS.S .= deepcopy(A)
+    ENS
+end
+
+function fill!(ENS::EnsembleState{N, NS, TS}, A::Array{TS,1})  where {N, NS, TS}
+    B = deepcopy(A)
+    for s in ENS.S
+        s .= A
+    end
+    return ENS
+end
+
+"Define addition of two EnsembleState"
+
+function (+)(A::EnsembleState{N, NS, TS}, B::EnsembleState{N, NS, TS}) where {N, NS, TS}
+    C = deepcopy(A)
+    C.S .+= B.S
+    return C
+end
+
+"Define substraction of two EnsembleState"
+
+function (-)(A::EnsembleState{N, NS, TS}, B::EnsembleState{N, NS, TS}) where {N, NS, TS}
+    C = deepcopy(A)
+    C.S .-= B.S
+    return C
+end

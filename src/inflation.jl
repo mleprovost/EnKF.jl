@@ -33,7 +33,7 @@ drawn from a random distribution
 """
 
 
-mutable struct AdditiveInflation{N} <: InflationType
+mutable struct AdditiveInflation{NS} <: InflationType
 
     "Distribution of the additive inflation α"
     α::MultivariateDistribution
