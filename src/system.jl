@@ -115,6 +115,8 @@ function (enkf::ENKF{N, TS, NZ, TZ})(t::Float64,
     "Propagate each ensemble member"
     enkf.f(t, ens)
 
+
+
     "Covariance inflation if 'isinflated==true' "
     if enkf.isinflated ==true
         enkf.A(ens)
