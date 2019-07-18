@@ -45,7 +45,7 @@ Fields:
 
 
 
-mutable struct ENKF{N, NS, TS, NZ, TZ}
+mutable struct ENKF{N, TS, NZ, TZ}
 
     # "Ensemble of states"
     # ENS::EnsembleState{N, NS, TS}
@@ -108,7 +108,7 @@ end
 # end
 
 " Define action of ENKF on EnsembleState "
-function (enkf::ENKF{N, NS, TS, NZ, TZ})(t::Float64,
+function (enkf::ENKF{N, TS, NZ, TZ})(t::Float64,
          Δt::Float64,
          ens::EnsembleState{N, NS, TS}) where {N, NS, TS, NZ, TZ}
 
@@ -163,13 +163,13 @@ function (enkf::ENKF{N, NS, TS, NZ, TZ})(t::Float64,
 
     end
 
-    return ens
+    return t+Δt, ens
 
 end
 
-size(ENS::ENKF{N, NS, TS, NZ, TZ}) where {N, NS, TS, NZ, TZ} = (N, NS, NZ)
+# size(enkf::ENKF{N, NS, TS, NZ, TZ}) where {N, NS, TS, NZ, TZ} = (N, NS, NZ)
 
 
-function Base.show(io::IO, sys::ENKF{N, NS, TS, NZ, TZ}) where {N, NS, TS, NZ, TZ}
-    print(io, "Ensemble Kalman filter with $N members of state of length $NS and measurement vector of length $NZ")
-end
+# function Base.show(io::IO, sys::ENKF{N,, TS, NZ, TZ}) where {N, NS, TS, NZ, TZ}
+#     print(io, "Ensemble Kalman filter with $N members of state of length $NS and measurement vector of length $NZ")
+# end

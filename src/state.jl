@@ -5,7 +5,7 @@ import Base: size, length, hcat, +, -, fill!
 
 import Statistics: mean, var, std
 
-export EnsembleState, deviation!, deviation, cut
+export EnsembleState!, EnsembleState, deviation!, deviation, cut
 
 """
     EnsembleState
@@ -46,6 +46,12 @@ function EnsembleState(States::Array{Array{T,1},1}) where {T}
     NS = size(States[1])[1]
     return EnsembleState{N, NS, T}(States)
 end
+
+function EnsembleState!(ENS::EnsembleState{N, NS, T}, States::Array{Array{T,1},1}) where {N, NS, T}
+    ENS.S .= deepcopy(States)
+    return ENS
+end
+
 
 size(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS} = (N, NS)
 
@@ -108,7 +114,7 @@ end
 function fill!(ENS::EnsembleState{N, NS, TS}, A::Array{TS,1})  where {N, NS, TS}
     B = deepcopy(A)
     for s in ENS.S
-        s .= A
+        s .= B
     end
     return ENS
 end

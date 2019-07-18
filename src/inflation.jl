@@ -5,8 +5,12 @@ import Base: size, length, *
 
 import Statistics: mean, var, std, cov
 
+import Distributions
+
+import Random: AbstractRNG
+
 export InflationType, AdditiveInflation, MultiplicativeInflation,
-        MultiAdditiveInflation
+        MultiAdditiveInflation, TupleProduct, Mixed
 
 """
     InflationType
@@ -47,6 +51,11 @@ function AdditiveInflation(NS::Int)
     return AdditiveInflation{NS}(MvNormal(zeros(NS), I))
 end
 
+
+function AdditiveInflation(α::MultivariateDistribution)
+    NS = length(α)
+    return AdditiveInflation{NS}(α)
+end
 
 # MvNormal(μ, σ) where σ is the standard deviation and not the covariance
 
@@ -212,3 +221,34 @@ function (A::MultiAdditiveInflation{NS})(ENS::EnsembleState{N, NS, TS}) where {N
     end
     return ENS
 end
+
+
+ ### Code from LowLevelParticleFilters.jl to define tuple of Distributions
+"""
+ Mixed value support indicates that the distribution is a mix of continuous and discrete dimensions.
+ """
+ struct Mixed <: ValueSupport end
+
+"""
+    TupleProduct(v::NTuple{N,UnivariateDistribution})
+Create a product distribution where the individual distributions are stored in a tuple. Supports mixed/hybrid Continuous and Discrete distributions
+"""
+struct TupleProduct{N,S,V<:NTuple{N,UnivariateDistribution}} <: MultivariateDistribution{S}
+    v::V
+    function TupleProduct(v::V) where {N,V<:NTuple{N,UnivariateDistribution}}
+        all(Distributions.value_support(typeof(d)) == Discrete for d in v) &&
+            return new{N,Discrete,V}(v)
+        all(Distributions.value_support(typeof(d)) == Continuous for d in v) &&
+            return new{N,Continuous,V}(v)
+        return new{N,Mixed,V}(v)
+    end
+end
+Base.length(d::TupleProduct{N}) where N = N
+Distributions._rand!(rng::AbstractRNG, d::TupleProduct, x::AbstractVector{<:Real}) =     broadcast!(dn->rand(rng, dn), x, d.v)
+@generated function Distributions._logpdf(d::TupleProduct{N}, x::AbstractVector{<:Real}) where N
+    :(Base.Cartesian.@ncall $N Base.:+ i->logpdf(d.v[i], x[i]))
+end
+Distributions.mean(d::TupleProduct) = vcat(mean.(d.v)...)
+Distributions.var(d::TupleProduct) = vcat(var.(d.v)...)
+Distributions.cov(d::TupleProduct) = Diagonal(var(d))
+# Distributions.entropy(d::TupleProduct) = sum(entropy, d.v)
