@@ -110,7 +110,7 @@ end
 " Define action of ENKF on EnsembleState "
 function (enkf::ENKF{N, TS, NZ, TZ})(t::Float64,
          Δt::Float64,
-         ens::EnsembleState{N, NS, TS}) where {N, NS, TS, NZ, TZ}
+         ens::EnsembleState{N, TS}) where {N, TS, NZ, TZ}
 
     "Propagate each ensemble member"
     enkf.f(t, ens)

@@ -8,6 +8,12 @@ import Statistics: mean, var, std
 export EnsembleState!, EnsembleState, deviation!, deviation, cut
 
 
+"""
+Define abstract type State for state vector
+"""
+
+abstract type State end
+
 
 
 """
@@ -19,52 +25,40 @@ Fields:
 
 - 'N' : Number of ensemble members"
 
-- 'NS' : Size of each state vector"
-
-- 'S' : Array of the different ensemble members
+- 'TS' : Type of the state
 """
 
 
 
-mutable struct EnsembleState{N, NS, TS}
+mutable struct EnsembleState{N,TS}
     " Array of the different ensemble members"
-    S::Array{Array{TS,1},1}
+    S::Array{TS,1}
 end
 
 # Return an ensemble of P members where each member is an
-# array of type TT and dimension NT
-function EnsembleState(N::Int, NS::Int; TS = Float64)
+# array of type TS and dimension NS
 
-    return EnsembleState{N, NS, TS}([zeros(TS, NS) for i = 1:N])
-end
-
-function EnsembleState(NT::Tuple{Int, Int}; TS = Float64)
-    N, NS = NT
-    return EnsembleState{N, NS, TS}([zeros(TS, NS) for i = 1:N])
+function EnsembleState(N::Int, u::TS)
+    return EnsembleState{N,TS}([zero(u) for i = 1:N])
 end
 
 
-function EnsembleState(States::Array{Array{T,1},1}) where {T}
+
+function EnsembleState(States::Array{TS,1}) where {TS}
     N = length(States)
-    NS = size(States[1])[1]
-    return EnsembleState{N, NS, T}(States)
-end
-
-function EnsembleState!(ENS::EnsembleState{N, NS, T}, States::Array{Array{T,1},1}) where {N, NS, T}
-    ENS.S .= deepcopy(States)
-    return ENS
+    return EnsembleState{N, TS}(States)
 end
 
 
-size(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS} = (N, NS)
+size(ENS::EnsembleState{N, TS})  where {N, TS} = N, size(ENS.S[1])
 
 
 
 "Return the mean of all the ensemble members"
-mean(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS} = mean(ENS.S)
+mean(ENS::EnsembleState{N, TS})  where {N, TS} = mean(ENS.S)
 
 
-function deviation!(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS}
+function deviation!(ENS::EnsembleState{N, TS})  where {N, TS}
     S̄ = deepcopy(mean(ENS))
      for s in ENS.S
          s .-= S̄
@@ -73,7 +67,7 @@ function deviation!(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS}
  end
 
 
-function deviation(ENSfluc::EnsembleState{N, NS, TS}, ENS::EnsembleState{N, NS, TS})  where {N, NS, TS}
+function deviation(ENSfluc::EnsembleState{N, TS}, ENS::EnsembleState{N, TS})  where {N, TS}
  S̄ = deepcopy(mean(ENS))
  ENSfluc.S .= deepcopy(ENS.S)
   for s in ENSfluc.S
@@ -82,7 +76,7 @@ function deviation(ENSfluc::EnsembleState{N, NS, TS}, ENS::EnsembleState{N, NS, 
   return ENSfluc
 end
 
-function deviation(tabfluc::Array{TS,2}, ENS::EnsembleState{N, NS, TS})  where {N, NS, TS}
+function deviation(tabfluc::Array{TS,2}, ENS::EnsembleState{N, TS})  where {N, TS}
  S̄ = deepcopy(mean(ENS))
  tabfluc .= hcat(deepcopy(ENS))
  tabfluc .-= S̄
@@ -90,13 +84,13 @@ function deviation(tabfluc::Array{TS,2}, ENS::EnsembleState{N, NS, TS})  where {
 end
 
 " Extend definition of hcat to EnsembleState"
-function hcat(ENS::EnsembleState{N, NS, TS})  where {N, NS, TS}
+function hcat(ENS::EnsembleState{N, TS})  where {N, TS}
    return hcat(ENS.S...)
 end
 
 
 " Cut an array along the different columns and create an EnsembleState variable with these columns"
-function cut(A::Array{TS,2}) where {TS}
+function cut(A::Array{TR,2}) where {TR}
     # Get size of A = (length of state vector, number of ensemble members)
         NS, N = size(A)
         B = deepcopy(A)
@@ -107,24 +101,18 @@ function cut(A::Array{TS,2}) where {TS}
     end
     return ENS
 end
-"Fill ensemble state"
 
-function fill!(ENS::EnsembleState{N, NS, TS}, A::Array{Array{TS,1},1})  where {N, NS, TS}
+
+function fill!(ENS::EnsembleState{N, TS}, A::Array{TS,1})  where {N, TS}
     ENS.S .= deepcopy(A)
-    ENS
-end
-
-function fill!(ENS::EnsembleState{N, NS, TS}, A::Array{TS,1})  where {N, NS, TS}
-    B = deepcopy(A)
-    for s in ENS.S
-        s .= B
-    end
     return ENS
 end
 
+
+
 "Define addition of two EnsembleState"
 
-function (+)(A::EnsembleState{N, NS, TS}, B::EnsembleState{N, NS, TS}) where {N, NS, TS}
+function (+)(A::EnsembleState{N, TS}, B::EnsembleState{N, TS}) where {N, TS}
     C = deepcopy(A)
     C.S .+= B.S
     return C
@@ -132,7 +120,7 @@ end
 
 "Define addition of an Array and an EnsembleState"
 
-function (+)(A::EnsembleState{N, NS, TS}, B::Array{TS,1}) where {N, NS, TS}
+function (+)(A::EnsembleState{N, TS}, B::TS) where {N, TS}
     C = deepcopy(A)
     for s in C.S
         s .+=B
@@ -143,7 +131,7 @@ end
 
 "Define substraction of two EnsembleState"
 
-function (-)(A::EnsembleState{N, NS, TS}, B::EnsembleState{N, NS, TS}) where {N, NS, TS}
+function (-)(A::EnsembleState{N, TS}, B::EnsembleState{N, TS}) where {N, TS}
     C = deepcopy(A)
     C.S .-= B.S
     return C
@@ -151,7 +139,7 @@ end
 
 "Define substraction of an Array from an EnsembleState"
 
-function (-)(A::EnsembleState{N, NS, TS}, B::Array{TS,1}) where {N, NS, TS}
+function (-)(A::EnsembleState{N, TS}, B::TS) where {N, TS}
     C = deepcopy(A)
     for s in C.S
         s .-=B

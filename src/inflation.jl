@@ -9,7 +9,7 @@ import Distributions
 
 import Random: AbstractRNG
 
-export InflationType, AdditiveInflation, MultiplicativeInflation,
+export InflationType, IdentityInflation, AdditiveInflation, MultiplicativeInflation,
         MultiAdditiveInflation, TupleProduct, Mixed
 
 """
@@ -19,6 +19,30 @@ An abstract type for Inflation.
 """
 
 abstract type InflationType end
+
+"""
+    IdentityInflation
+
+
+An type to store identity inflation :
+
+Define additive inflation: x <- x
+
+
+
+"""
+
+
+mutable struct IdentityInflation <: InflationType
+
+end
+
+
+" Define action of IdentityInflation on an EnsembleState : x <- x  "
+
+function (A::IdentityInflation{NS})(ENS::EnsembleState{N, TS}) where {N, TS}
+    return ENS
+end
 
 
 
@@ -90,7 +114,7 @@ cov(A::AdditiveInflation{NS}) where {NS} = cov(A.α)
 
 " Define action of AdditiveInflation on an EnsembleState : x <- x + α "
 
-function (A::AdditiveInflation{NS})(ENS::EnsembleState{N, NS, TS}) where {N, NS, TS}
+function (A::AdditiveInflation{NS})(ENS::EnsembleState{N, TS}) where {N, TS}
     for s in ENS.S
         s .+= rand(A.α)
     end
@@ -142,7 +166,7 @@ Base.length(A::MultiplicativeInflation{NS}) where {NS} = NS
 
 "Define action of MultiplicativeInflation : x <- x̂ + β*(x - x̂)"
 
-function (A::MultiplicativeInflation{NS})(ENS::EnsembleState{N, NS, TS}) where {N, NS, TS}
+function (A::MultiplicativeInflation{NS})(ENS::EnsembleState{N, TS}) where {N, NS, TS}
     Ŝ = deepcopy(mean(ENS))
     for s in ENS.S
         s .= Ŝ .+ A.β * (s .- Ŝ)
@@ -214,7 +238,7 @@ cov(A::MultiAdditiveInflation{NS}) where {NS} = cov(A.α)
 
 "Define action of MultiplicativeInflation : x <- x̂ + β*(x - x̂)"
 
-function (A::MultiAdditiveInflation{NS})(ENS::EnsembleState{N, NS, TS}) where {N, NS, TS}
+function (A::MultiAdditiveInflation{NS})(ENS::EnsembleState{N, TS}) where {N, NS, TS}
     Ŝ = deepcopy(mean(ENS))
     for s in ENS.S
         s .= Ŝ .+ A.β * (s .- Ŝ) .+ rand(A.α)
