@@ -43,7 +43,6 @@ function EnsembleState(N::Int, u::TS)
 end
 
 
-
 function EnsembleState(States::Array{TS,1}) where {TS}
     N = length(States)
     return EnsembleState{N, TS}(States)

@@ -40,7 +40,7 @@ end
 
 " Define action of IdentityInflation on an EnsembleState : x <- x  "
 
-function (A::IdentityInflation{NS})(ENS::EnsembleState{N, TS}) where {N, TS}
+function (A::IdentityInflation)(ENS::EnsembleState{N, TS}) where {N, TS}
     return ENS
 end
 
@@ -114,7 +114,7 @@ cov(A::AdditiveInflation{NS}) where {NS} = cov(A.α)
 
 " Define action of AdditiveInflation on an EnsembleState : x <- x + α "
 
-function (A::AdditiveInflation{NS})(ENS::EnsembleState{N, TS}) where {N, TS}
+function (A::AdditiveInflation{NS})(ENS::EnsembleState{N, TS}) where {N, NS, TS}
     for s in ENS.S
         s .+= rand(A.α)
     end
