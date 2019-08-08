@@ -25,7 +25,7 @@ Fields:
 
 - 'N' : Number of ensemble members"
 
-- 'TS' : Type of the state
+- 'S' : Array of the different members
 """
 
 
@@ -38,7 +38,8 @@ end
 # Return an ensemble of P members where each member is an
 # array of type TS and dimension NS
 
-function EnsembleState(N::Int, u::TS)
+function EnsembleState(N::Int, u)
+    TS = typeof(u)
     return EnsembleState{N,TS}([zero(u) for i = 1:N])
 end
 
@@ -51,7 +52,7 @@ end
 
 size(ENS::EnsembleState{N, TS})  where {N, TS} = N, size(ENS.S[1])
 
-
+length(ENS::EnsembleState{N, TS})  where {N, TS} = N
 
 "Return the mean of all the ensemble members"
 mean(ENS::EnsembleState{N, TS})  where {N, TS} = mean(ENS.S)
@@ -89,7 +90,7 @@ end
 
 
 " Cut an array along the different columns and create an EnsembleState variable with these columns"
-function cut(A::Array{TR,2}) where {TR}
+function cut(A::AbstractMatrix{TR}) where {TR}
     # Get size of A = (length of state vector, number of ensemble members)
         NS, N = size(A)
         B = deepcopy(A)
