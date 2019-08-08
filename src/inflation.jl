@@ -10,7 +10,7 @@ import Distributions
 import Random: AbstractRNG
 
 export InflationType, IdentityInflation, AdditiveInflation, MultiplicativeInflation,
-        MultiAdditiveInflation, TupleProduct, Mixed
+        MultiAdditiveInflation, TupleProduct, Mixed, ParametersInflation, RecipeInflation
 
 """
     InflationType
@@ -48,8 +48,7 @@ end
 
 """
     AdditiveInflation
-
-
+    
 An type to store additive inflation :
 
 Define additive inflation: x <- x + α with α a N-dimensional vector
@@ -125,7 +124,6 @@ end
 
 """
     MultiplicativeInflation
-
 
 An type to store multiplicative inflation :
 
@@ -276,3 +274,31 @@ Distributions.mean(d::TupleProduct) = vcat(mean.(d.v)...)
 Distributions.var(d::TupleProduct) = vcat(var.(d.v)...)
 Distributions.cov(d::TupleProduct) = Diagonal(var(d))
 # Distributions.entropy(d::TupleProduct) = sum(entropy, d.v)
+
+
+
+# """ Create an abstract type for set of parameters to generate new covariance inflation distribution """
+#
+# abstract type ParametersInflation <: AbstractVector  end
+
+
+
+
+"""
+    RecipeInflation
+
+A structure to generate covariance inflation distribution from parameters p
+
+
+# Fields:
+- 'p' : Vector{Float64}
+
+"""
+
+struct RecipeInflation
+    p::Vector{Float64}
+end
+
+# function RecipeInflation(p::AbstractVector)
+#     return RecipeInflation(p)
+# end

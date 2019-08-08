@@ -7,12 +7,15 @@ import Statistics: mean, var, std
 
 export  PropagationFunction,
         MeasurementFunction,
+        FilteringFunction,
         RealMeasurementFunction,
         ENKF
 
 struct PropagationFunction end
 
 struct MeasurementFunction end
+
+struct FilteringFunction end
 
 struct RealMeasurementFunction end
 
@@ -28,6 +31,8 @@ Fields:
 
  - 'A' : inflation
 
+ - 'G' : filtering function acting on the state
+
  - 'm' : measurement function based on state
 
  - 'z' : real measurement function
@@ -39,13 +44,16 @@ Fields:
  - 'isinflated' : Bool = true if state is inflated,
      = false otherwise
 
+ - 'isfiltered' : Bool = true if state has to be filtered,
+     = false otherwise
+
  - 'isaugmented' : Bool = true if measurement function is nonlinear,
      = false otherwise
 """
 
 
 
-mutable struct ENKF{N, TS, NZ, TZ}
+mutable struct ENKF{N, NZ}
 
     # "Ensemble of states"
     # ENS::EnsembleState{N, NS, TS}
@@ -54,7 +62,10 @@ mutable struct ENKF{N, TS, NZ, TZ}
     f::PropagationFunction
 
     "Covariance Inflation"
-    A::InflationType
+    A::Union{InflationType, RecipeInflation}
+
+    "Filter function"
+    G::FilteringFunction
 
     "Measurement function based on state"
     m::MeasurementFunction
@@ -68,6 +79,9 @@ mutable struct ENKF{N, TS, NZ, TZ}
     "Boolean: is state vector inflated"
     isinflated::Bool
 
+    "Boolean: is state vector filtered"
+    isfiltered::Bool
+
     "Boolean: is state vector augmented"
     isaugmented::Bool
     # "Bounds on certain state"
@@ -75,77 +89,64 @@ mutable struct ENKF{N, TS, NZ, TZ}
 
 end
 
-# This is just the default constructeur
-# function ENKF(ENS::EnsembleState{N, NS, TS},
-#     f::PropagationFunction,
-#     A::InflationType,
-#     m::MeasurementFunction,
-#     z::RealMeasurementFunction,
-#     ϵ::AdditiveInflation{NS},
-#     isinflated::Bool,
-#     isaugmented::Bool) where {N, NS, TS}
-#
-#     return ENKF{N, NS, TS, NZ, TZ}(f, A, m, z, ϵ, isinflated, isaugmented)
-# end
-
-
-# Define action of PropagationFunction, MeasurementFunction on the states
-# function (f::PropagationFunction)(t::Float64, S::Array{TS,1}) where {TS}
-#     return f(t,S)
-# end
-#
-#
-# function (f::PropagationFunction)(t::Float64, ENS::EnsembleState{N, NS, TS}) where {N, NS, TS}
-#     #Allow for size of the output to vary (aggregation and )
-#     out = []
-#
-#     for (k,sk) in enumerate(ENS.S)
-#         push!(out, f(t,sk))
-#     end
-#
-#     return EnsembleState(out)
-#
-# end
 
 " Define action of ENKF on EnsembleState "
-function (enkf::ENKF{N, TS, NZ, TZ})(t::Float64,
+function (enkf::ENKF{N, NZ})(t::Float64,
          Δt::Float64,
-         ens::EnsembleState{N, TS}) where {N, TS, NZ, TZ}
+         ens::EnsembleState{N, TS}) where {N, NZ, TS}
 
     "Propagate each ensemble member"
     enkf.f(t, ens)
 
 
-
+    # println("good prop")
     "Covariance inflation if 'isinflated==true' "
     if enkf.isinflated ==true
         enkf.A(ens)
     end
+    # println("good inflation")
+
+    "State filtering if 'isfiltered==true' "
+    if enkf.isfiltered ==true
+        enkf.G(ens)
+    end
+    # println("good filtering")
+
+
 
     "Compute mean and deviation"
     Ŝ = deepcopy(mean(ens))
 
-    ensfluc = EnsembleState(size(ens))
+    ensfluc = EnsembleState(N, ens.S[1])
 
     deviation(ensfluc, ens)
 
     A′ = hcat(ensfluc)
 
+    # println("good deviation")
+
     "Compute measurement"
-    mens = EnsembleState((N, NZ))
-    enkf.m(t, mens, ens)
+    mens = EnsembleState(N, zeros(NZ))
+
+    for (i, s) in enumerate(ens.S)
+        mens.S[i] = enkf.m(t, deepcopy(s))
+    end
 
     Â = hcat(deepcopy(mens))
+    # println("good measurement")
 
     "Compute deviation from measurement of the mean"
     Â′  = Â .- enkf.m(t, mean(ens))
 
+    # println("good deviation mean")
+
     "Get actual measurement"
-    zens = EnsembleState((N, NZ))
+    zens = EnsembleState(N, zeros(NZ))
     enkf.z(t+Δt, zens)
+    # println("good actual measurement")
 
     "Perturb actual measurement"
-    ϵ(zens)
+    enkf.ϵ(zens)
 
     D = hcat(zens)
 
@@ -158,10 +159,16 @@ function (enkf::ENKF{N, TS, NZ, TZ})(t::Float64,
     b = ((Â′*Â′') + (N-1)*cov(enkf.ϵ)*I) \ (D - Â)
 
     Bᵀb = (A′*Â′')*b
-
+    # print(size(Bᵀb))
+    # print(size(ens))
 
     "Analysis step"
     ens += cut(Bᵀb)
+
+    "State filtering if 'isfiltered==true' "
+    if enkf.isfiltered ==true
+        enkf.G(ens)
+    end
 
     end
 
@@ -169,9 +176,18 @@ function (enkf::ENKF{N, TS, NZ, TZ})(t::Float64,
 
 end
 
-# size(enkf::ENKF{N, NS, TS, NZ, TZ}) where {N, NS, TS, NZ, TZ} = (N, NS, NZ)
+
+# Create constructor for ENKF
+
+function ENKF(N, NZ, f, A, G, m, z, ϵ, isinflated, isfiltered, isaugmented)
+    return ENKF{N, NZ}(f, A, G, m, z, ϵ, isinflated, isfiltered, isaugmented)
+end
 
 
-# function Base.show(io::IO, sys::ENKF{N,, TS, NZ, TZ}) where {N, NS, TS, NZ, TZ}
-#     print(io, "Ensemble Kalman filter with $N members of state of length $NS and measurement vector of length $NZ")
+# size(enkf::ENKF{N, TS, NZ, TZ}) where {N, TS, NZ, TZ} = (N, size, NZ)
+
+
+# function Base.show(io::IO, sys::ENKF{N, TS, NZ, TZ}) where {N, TS, NZ, TZ}
+#     NS = size()
+#     print(io, "Ensemble Kalman filter with $N members of state of size $ and measurement vector of length $NZ")
 # end

@@ -5,14 +5,14 @@ import Base: size, length, hcat, +, -, fill!
 
 import Statistics: mean, var, std
 
-export EnsembleState!, EnsembleState, deviation!, deviation, cut
+export EnsembleState!, EnsembleState, deviation!, deviation, cut, fill!
 
 
 """
 Define abstract type State for state vector
 """
 
-abstract type State end
+# abstract type State end
 
 
 
@@ -95,16 +95,18 @@ function cut(A::AbstractMatrix{TR}) where {TR}
         NS, N = size(A)
         B = deepcopy(A)
     # Allocate space
-    ENS = EnsembleState(N, NS)
-    for i in 1:N
-        ENS.S[i] .= B[:,i]
+    ENS = EnsembleState(N, zeros(NS))
+    for i  = 1:N
+        ENS.S[i] = B[:,i]
     end
     return ENS
 end
 
 
-function fill!(ENS::EnsembleState{N, TS}, A::Array{TS,1})  where {N, TS}
-    ENS.S .= deepcopy(A)
+function fill!(ENS::EnsembleState{N, TS}, A::TS)  where {N, TS}
+    for s in ENS.S
+        s .= deepcopy(A)
+    end
     return ENS
 end
 
