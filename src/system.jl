@@ -136,7 +136,7 @@ function (enkf::ENKF{N, NZ})(t::Float64,
     # println("good measurement")
 
     "Compute deviation from measurement of the mean"
-    Â′  = Â .- enkf.m(t, mean(ens))
+    Â′  = Â .- enkf.m(t, Ŝ)
 
     # println("good deviation mean")
 

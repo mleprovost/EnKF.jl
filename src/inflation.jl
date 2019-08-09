@@ -48,7 +48,7 @@ end
 
 """
     AdditiveInflation
-    
+
 An type to store additive inflation :
 
 Define additive inflation: x <- x + α with α a N-dimensional vector
@@ -88,7 +88,7 @@ end
 Return the dimension of the additive inflation
 
 """
-Base.size(A::AdditiveInflation{NS}) where {NS}= size(A.α)
+Base.size(A::AdditiveInflation{NS}) where {NS} = size(A.α)
 
 """
     length(A::AdditiveInflation) -> Int
@@ -274,13 +274,6 @@ Distributions.mean(d::TupleProduct) = vcat(mean.(d.v)...)
 Distributions.var(d::TupleProduct) = vcat(var.(d.v)...)
 Distributions.cov(d::TupleProduct) = Diagonal(var(d))
 # Distributions.entropy(d::TupleProduct) = sum(entropy, d.v)
-
-
-
-# """ Create an abstract type for set of parameters to generate new covariance inflation distribution """
-#
-# abstract type ParametersInflation <: AbstractVector  end
-
 
 
 
