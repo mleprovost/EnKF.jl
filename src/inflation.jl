@@ -288,8 +288,8 @@ A structure to generate covariance inflation distribution from parameters p
 
 """
 
-struct RecipeInflation
-    p::Vector{Float64}
+mutable struct RecipeInflation
+    p::Vector{Real}
 end
 
 # function RecipeInflation(p::AbstractVector)
