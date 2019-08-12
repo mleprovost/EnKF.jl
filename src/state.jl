@@ -104,8 +104,9 @@ end
 
 
 function fill!(ENS::EnsembleState{N, TS}, A::TS)  where {N, TS}
+    B = deepcopy(A)
     for s in ENS.S
-        s .= deepcopy(A)
+        s .= B
     end
     return ENS
 end
