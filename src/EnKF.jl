@@ -10,4 +10,6 @@ include("inflation.jl")
 
 include("system.jl")
 
+include("vortexenkf/vortexenkf.jl")
+
 end # module
