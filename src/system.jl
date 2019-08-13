@@ -115,7 +115,6 @@ function (enkf::ENKF{N, NZ})(t::Float64,
 
 
     "Compute mean and deviation"
-    Ŝ = deepcopy(mean(ens))
 
     ensfluc = EnsembleState(N, ens.S[1])
 
@@ -136,6 +135,8 @@ function (enkf::ENKF{N, NZ})(t::Float64,
     # println("good measurement")
 
     "Compute deviation from measurement of the mean"
+    Ŝ = mean(deepcopy(ens))
+
     Â′  = Â .- enkf.m(t, Ŝ)
 
     # println("good deviation mean")
