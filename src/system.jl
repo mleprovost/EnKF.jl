@@ -133,7 +133,7 @@ function (enkf::ENKF{N, NZ})(t::Float64,
     Â = hcat(deepcopy(mens))
 
     "Define measurement matrix H for linear observations, can be time-varying"
-    if isaugmented == true
+    if enkf.isaugmented == false
         H = deepcopy(enkf.m(t))
     end
 

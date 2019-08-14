@@ -529,9 +529,15 @@ version = "5.14.0"
 
 [[PDMats]]
 deps = ["Arpack", "LinearAlgebra", "SparseArrays", "SuiteSparse", "Test"]
-git-tree-sha1 = "f99548922adf8dd5df2f02ab0063944201a12ed8"
+git-tree-sha1 = "9d6a9b3e19634612fb1edcafc4b1d75242b24bde"
 uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
-version = "0.9.8"
+version = "0.9.9"
+
+[[ParameterizedFunctions]]
+deps = ["DataStructures", "DiffEqBase", "LinearAlgebra", "SymEngine"]
+git-tree-sha1 = "4ddf66140e4a0fbf66610da9e6a1cb24a8d57580"
+uuid = "65888b18-ceab-5e60-b2b9-181511a3b968"
+version = "4.2.1"
 
 [[Parameters]]
 deps = ["OrderedCollections"]
@@ -721,9 +727,9 @@ uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[SparseDiffTools]]
 deps = ["Adapt", "ArrayInterface", "BandedMatrices", "BlockBandedMatrices", "DiffEqDiffTools", "ForwardDiff", "LightGraphs", "LinearAlgebra", "Requires", "SparseArrays", "VertexSafeGraphs"]
-git-tree-sha1 = "1b36284808f5971e73c43978e12842bedb31c293"
+git-tree-sha1 = "c1ecded2bd37b1ce7db8e55a814c8aa63efa80fe"
 uuid = "47a9eef4-7e08-11e9-0b38-333d64bd3804"
-version = "0.8.0"
+version = "0.9.0"
 
 [[SpecialFunctions]]
 deps = ["BinDeps", "BinaryProvider", "Libdl", "Test"]
@@ -775,6 +781,12 @@ git-tree-sha1 = "9af4eb72683f0dafe84c6a5bd31aea1ebca4d46c"
 uuid = "c3572dad-4567-51f8-b174-8c6c989267f4"
 version = "3.6.1"
 
+[[SymEngine]]
+deps = ["BinaryProvider", "Compat", "Libdl", "RecipesBase", "SpecialFunctions"]
+git-tree-sha1 = "7476b2dcafea7d2171014c834a81ccaf59d62006"
+uuid = "123dc426-2d89-5057-bbad-38513e3affd8"
+version = "0.7.0"
+
 [[TableTraits]]
 deps = ["IteratorInterfaceExtensions"]
 git-tree-sha1 = "b1ad568ba658d8cbb3b892ed5380a6f3e781a81e"
@@ -786,9 +798,9 @@ deps = ["Distributed", "InteractiveUtils", "Logging", "Random"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[Tokenize]]
-git-tree-sha1 = "c8a8b00ae44a94950814ff77850470711a360225"
+git-tree-sha1 = "dfcdbbfb2d0370716c815cbd6f8a364efb6f42cf"
 uuid = "0796e94c-ce3b-5d07-9a54-7f471281c624"
-version = "0.5.5"
+version = "0.5.6"
 
 [[TranscodingStreams]]
 deps = ["Random", "Test"]
