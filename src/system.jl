@@ -127,12 +127,15 @@ function (enkf::ENKF{N, NZ})(t::Float64,
     "Compute measurement"
     mens = EnsembleState(N, zeros(NZ))
 
-    for (i, s) in enumerate(ens.S)
-        mens.S[i] = enkf.m(t, deepcopy(s))
-    end
-
+        for (i, s) in enumerate(ens.S)
+            mens.S[i] = enkf.m(t, deepcopy(s))
+        end
     Â = hcat(deepcopy(mens))
-    # println("good measurement")
+
+    "Define measurement matrix H for linear observations, can be time-varying"
+    if isaugmented == true
+        H = deepcopy(enkf.m(t))
+    end
 
     "Compute deviation from measurement of the mean"
     Ŝ = mean(deepcopy(ens))
@@ -154,14 +157,19 @@ function (enkf::ENKF{N, NZ})(t::Float64,
 
     "Analysis step with representers, Evensen, Leeuwen et al. 1998"
 
-    if enkf.isaugmented ==true
     "Construct representers"
+    if enkf.isaugmented ==true
 
-    b = ((Â′*Â′') + (N-1)*cov(enkf.ϵ)*I) \ (D - Â)
+        b = ((Â′*Â′') + (N-1)*cov(enkf.ϵ)*I) \ (D - Â)
 
-    Bᵀb = (A′*Â′')*b
-    # print(size(Bᵀb))
-    # print(size(ens))
+        Bᵀb = (A′*Â′')*b
+
+    else
+
+        b = ( H * (A′*A′') * H' + (N-1)*cov(enkf.ϵ)*I) \ (D - Â)
+
+        Bᵀb = (A′*A′')* H' * b
+    end
 
     "Analysis step"
     ens += cut(Bᵀb)
@@ -169,8 +177,6 @@ function (enkf::ENKF{N, NZ})(t::Float64,
     "State filtering if 'isfiltered==true' "
     if enkf.isfiltered ==true
         enkf.G(ens)
-    end
-
     end
 
     return t+Δt, ens
