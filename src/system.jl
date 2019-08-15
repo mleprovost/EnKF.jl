@@ -119,7 +119,7 @@ function (enkf::ENKF{N, NZ})(t::Float64,
     ensfluc = EnsembleState(N, ens.S[1])
 
     deviation(ensfluc, ens)
-
+    
     A′ = hcat(ensfluc)
 
     # println("good deviation")
