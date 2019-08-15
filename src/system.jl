@@ -119,7 +119,7 @@ function (enkf::ENKF{N, NZ})(t::Float64,
     ensfluc = EnsembleState(N, ens.S[1])
 
     deviation(ensfluc, ens)
-    
+
     A′ = hcat(ensfluc)
 
     # println("good deviation")
@@ -179,7 +179,13 @@ function (enkf::ENKF{N, NZ})(t::Float64,
         enkf.G(ens)
     end
 
-    return t+Δt, ens
+    " Compute a posteriori covariance"
+    deviation(ensfluc, ens)
+
+    A′ = hcat(ensfluc)
+
+
+    return t+Δt, ens, A′*A′'
 
 end
 
