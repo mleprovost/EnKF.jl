@@ -1,33 +1,24 @@
-using Documenter, EnKF
-
+using Pkg
+#include("/media/mat/HDD/EnKF/src/EnKF.jl")
+Pkg.activate("/media/mat/HDD/EnKF/")
+using Documenter, EnKF, ViscousFlow
 makedocs(
-    sitename = "ViscousFlow.jl",
-    doctest = true,
-    clean = true,
+    sitename = "EnKF.jl",
     pages = [
         "Home" => "index.md",
-        "Manual" => ["manual/fields.md",
-                     "manual/bodies.md",
-                     "manual/saddlesystems.md",
-                     "manual/timemarching.md",
-                     "manual/navierstokes.md"
-                     ]
-        #"Internals" => [ "internals/properties.md"]
+        "Manual" => ["manual/inflation.md",
+                     "manual/state.md",
+                     "manual/system.md",
+                     "manual/timemarching.md"
+                     ],
+#        "Internals" => [ "internals/properties.md"]
     ],
-    Documenter.HTML(
-        prettyurls = get(ENV, "CI", nothing) == "true"
+   format = Documenter.HTML(assets = ["assets/custom.css"]),
+#   strict = true
+)
+
+if "DOCUMENTER_KEY" in keys(ENV)
+    deploydocs(;
+     repo = "github.com/mleprovost/EnKF.jl.git",
     )
-    #assets = ["assets/custom.css"],
-    #strict = true
-)
-
-
-#if "DOCUMENTER_KEY" in keys(ENV)
-deploydocs(
-     repo = "github.com/jdeldre/ViscousFlow.jl.git",
-     target = "build",
-     deps = nothing,
-     make = nothing
-     #versions = "v^"
-)
-#end
+end

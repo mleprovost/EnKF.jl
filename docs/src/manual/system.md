@@ -1,4 +1,4 @@
-# Navier-Stokes systems
+# Ensemble Kalman filter systems
 
 ```@meta
 CurrentModule = ViscousFlow.Systems

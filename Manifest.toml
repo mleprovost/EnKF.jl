@@ -38,9 +38,9 @@ version = "1.0.0"
 
 [[BandedMatrices]]
 deps = ["FillArrays", "LazyArrays", "LinearAlgebra", "MatrixFactorizations", "Random", "SparseArrays"]
-git-tree-sha1 = "a58595d50a365c720fea52745e3a532eeecedc2a"
+git-tree-sha1 = "414a1b7e37d613b8fb7f0e5732499cd30dabfa99"
 uuid = "aae01518-5342-5314-be14-df237901396f"
-version = "0.9.4"
+version = "0.10.0"
 
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -65,9 +65,9 @@ version = "0.9.1"
 
 [[BlockBandedMatrices]]
 deps = ["BandedMatrices", "BlockArrays", "Distributed", "FillArrays", "LazyArrays", "LinearAlgebra", "MatrixFactorizations", "Pkg", "Profile", "Random", "SharedArrays", "SparseArrays", "Statistics", "Test"]
-git-tree-sha1 = "8e3a098d4d0af47786f5ba8f1ad9c7928facfd15"
+git-tree-sha1 = "52a3f347579a93ca4131ec2f6fd298ffde0deccb"
 uuid = "ffab5731-97b5-5995-9138-79e8c1846df0"
-version = "0.4.5"
+version = "0.4.6"
 
 [[BoundaryValueDiffEq]]
 deps = ["BandedMatrices", "DiffEqBase", "DiffEqDiffTools", "ForwardDiff", "LinearAlgebra", "NLsolve", "Reexport", "SparseArrays"]
@@ -260,6 +260,12 @@ git-tree-sha1 = "c61d6eedbc3c4323c08b64af12d29c8ee0fcbb5f"
 uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 version = "0.23.2"
 
+[[DocumenterTools]]
+deps = ["Base64", "DocStringExtensions", "LibGit2", "Pkg", "Test"]
+git-tree-sha1 = "f5803a9c2c23ff226e8eab2df7ac4c75e77a0d53"
+uuid = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
+version = "0.1.0"
+
 [[ExponentialUtilities]]
 deps = ["LinearAlgebra", "Printf", "SparseArrays"]
 git-tree-sha1 = "85e1ce16aa9b98793df704e17e7a0ceadefe404f"
@@ -425,10 +431,10 @@ uuid = "50d2b5c4-7a5e-59d5-8109-a42b560f39c0"
 version = "0.13.2"
 
 [[LazyArrays]]
-deps = ["FillArrays", "LinearAlgebra", "MacroTools", "StaticArrays", "Test"]
-git-tree-sha1 = "0d9a7174d47407a61953e17c3dcecfb4ca8c5c44"
+deps = ["FillArrays", "LinearAlgebra", "MacroTools", "StaticArrays"]
+git-tree-sha1 = "e71f611fec1329f0fd6c82e9b5d7da3fc9822b0d"
 uuid = "5078a376-72f3-5289-bfd5-ec5146d43c02"
-version = "0.9.1"
+version = "0.10.0"
 
 [[LibGit2]]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
