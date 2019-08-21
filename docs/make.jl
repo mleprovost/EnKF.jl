@@ -6,10 +6,10 @@ makedocs(
     sitename = "EnKF.jl",
     pages = [
         "Home" => "index.md",
-        "Manual" => ["manual/inflation.md",
+        "Manual" => [#"manual/inflation.md",
                      "manual/state.md",
-                     "manual/system.md",
-                     "manual/timemarching.md"
+                     #"manual/system.md",
+                     #"manual/timemarching.md"
                      ],
 #        "Internals" => [ "internals/properties.md"]
     ],
@@ -17,8 +17,6 @@ makedocs(
 #   strict = true
 )
 
-if "DOCUMENTER_KEY" in keys(ENV)
-    deploydocs(;
-     repo = "github.com/mleprovost/EnKF.jl.git",
-    )
-end
+deploydocs(
+    repo = "github.com/mleprovost/EnKF.jl.git",
+)

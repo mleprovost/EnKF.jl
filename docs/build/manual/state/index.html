@@ -1,210 +1,99 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Fields · EnKF.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link href="../../assets/documenter.css" rel="stylesheet" type="text/css"/><link href="../../assets/custom.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>EnKF.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../../">Home</a></li><li><span class="toctext">Manual</span><ul><li><a class="toctext" href="../inflation/">Bodies</a></li><li class="current"><a class="toctext" href>Fields</a><ul class="internal"><li><a class="toctext" href="#Setting-up-field-data-1">Setting up field data</a></li><li><a class="toctext" href="#Field-differencing-operations-1">Field differencing operations</a></li><li><a class="toctext" href="#The-Laplacian-and-its-inverse-1">The Laplacian and its inverse</a></li><li><a class="toctext" href="#The-integrating-factor-1">The integrating factor</a></li><li><a class="toctext" href="#Other-field-operations-1">Other field operations</a></li><li><a class="toctext" href="#The-grid-in-physical-space-1">The grid in physical space</a></li><li><a class="toctext" href="#Regularization-and-interpolation-1">Regularization and interpolation</a></li><li><a class="toctext" href="#Other-operations-with-point-type-data-1">Other operations with point-type data</a></li><li><a class="toctext" href="#Methods-1">Methods</a></li><li><a class="toctext" href="#Index-1">Index</a></li></ul></li><li><a class="toctext" href="../system/">Ensemble Kalman filter systems</a></li><li><a class="toctext" href="../timemarching/">Time marching</a></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li>Manual</li><li><a href>Fields</a></li></ul><a class="edit-page" href="https://github.com/mleprovost/EnKF/blob/master/docs/src/manual/state.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Fields</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Fields-1" href="#Fields-1">Fields</a></h1><div>\[\def\ddt#1{\frac{\mathrm{d}#1}{\mathrm{d}t}}
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Fields · EnKF.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link href="../../assets/documenter.css" rel="stylesheet" type="text/css"/><link href="../../assets/custom.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>EnKF.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../../">Home</a></li><li><span class="toctext">Manual</span><ul><li class="current"><a class="toctext" href>Fields</a><ul class="internal"><li><a class="toctext" href="#Setting-up-your-ensemble-state-1">Setting up your ensemble state</a></li><li><a class="toctext" href="#Field-differencing-operations-1">Field differencing operations</a></li><li><a class="toctext" href="#The-Laplacian-and-its-inverse-1">The Laplacian and its inverse</a></li><li><a class="toctext" href="#The-integrating-factor-1">The integrating factor</a></li><li><a class="toctext" href="#Other-field-operations-1">Other field operations</a></li><li><a class="toctext" href="#The-grid-in-physical-space-1">The grid in physical space</a></li><li><a class="toctext" href="#Regularization-and-interpolation-1">Regularization and interpolation</a></li><li><a class="toctext" href="#Other-operations-with-point-type-data-1">Other operations with point-type data</a></li><li><a class="toctext" href="#Methods-1">Methods</a></li><li><a class="toctext" href="#Index-1">Index</a></li></ul></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li>Manual</li><li><a href>Fields</a></li></ul><a class="edit-page" href="https://github.com/mleprovost/EnKF/blob/master/docs/src/manual/state.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Fields</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Fields-1" href="#Fields-1">Fields</a></h1><div>\[\def\ddt#1{\frac{\mathrm{d}#1}{\mathrm{d}t}}
 
 \renewcommand{\vec}{\boldsymbol}
 \newcommand{\uvec}[1]{\vec{\hat{#1}}}
 \newcommand{\utangent}{\uvec{\tau}}
 \newcommand{\unormal}{\uvec{n}}
 
-\renewcommand{\d}{\,\mathrm{d}}\]</div><div></div><p>In <code>ViscousFlow</code>, field data, such as velocity, vorticity and pressure, are stored on a staggered uniform grid. Such a grid is divided into <em>cells</em>, with <em>edges</em> (which, on a two-dimensional grid, are the same as <em>faces</em>) and <em>nodes</em> (cell centers). Nodes hold scalar-valued data. Edges, on the other hand, hold the components of vector-valued data that are normal to the respective edges; one component lies on the vertical edges, while the other is on the horizontal edges.</p><p>Furthermore, there are two different cell types: <em>primal</em> and <em>dual</em>. On the physical grid, these cell types are offset with respect to each other by half a cell spacing in each direction. In other words, the four corners of the primal (resp. dual) cell are the nodes of four dual (resp. primary) cells.</p><p>Thus, on a two-dimensional staggered grid, there are four distinct vector spaces, associated with where the data are held on the grid:</p><ul><li>dual nodes,</li><li>dual edges,</li><li>primal nodes, and</li><li>primal edges.</li></ul><p>In <code>ViscousFlow</code>, these are each distinct data types. Furthermore, the relationships between these types are defined by an underlying grid shared by all. By convention, this grid is defined by the number of dual cells <code>NX</code> and <code>NY</code> in each direction; we will often refer to it as the <em>dual grid</em>. For example, <code>Nodes{Dual,NX,NY}</code> is the type for dual node data on this grid; <code>Edges{Primal,NX,NY}</code> is the type for edge data on the primal cells within this same <code>NX</code> by <code>NY</code> dual grid. Note that, even though this latter type is parameterized by <code>NX</code> and <code>NY</code>, these values do <em>not</em> correspond to the number of primal edges in each direction on this dual grid. These values always correspond to the number of dual cells on the grid, for any data type. This makes it clear the grid is shared by all data.</p><h2><a class="nav-anchor" id="Setting-up-field-data-1" href="#Setting-up-field-data-1">Setting up field data</a></h2><p>Let&#39;s see an example of creating a blank set of dual node data and filling it with something:</p><pre><code class="language-julia-repl">julia&gt; w = Nodes(Dual,(5,4))
-Nodes{Dual,5,4} data
-Printing in grid orientation (lower left is (1,1))
-4×5 Array{Float64,2}:
- 0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0
+\renewcommand{\d}{\,\mathrm{d}}\]</div><div></div><p>In <code>EnKF</code>, ensemble of members are  stored as a mutable structure <code>EnsembleState{N, TS}</code> where N is the number of members and <code>TS</code> an arbitrary type for each member. </p><div class="admonition warning"><div class="admonition-title">Missing docstring.</div><div class="admonition-text"><p>Missing docstring for <code>EnsembleState</code>. Check Documenter&#39;s build log for details.</p></div></div><h2><a class="nav-anchor" id="Setting-up-your-ensemble-state-1" href="#Setting-up-your-ensemble-state-1">Setting up your ensemble state</a></h2><p>Let&#39;s see an example of creating a blank ensemble of 5 members of vector of length 10 and fill each member with a vector full of ones:</p><pre><code class="language-julia-repl">julia&gt; ens = EnsembleState(5, zeros(10))
+EnsembleState{5,Array{Float64,1}}(Array{Float64,1}[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
 
-julia&gt; w .= reshape(1:20,5,4)
-Nodes{Dual,5,4} data
-Printing in grid orientation (lower left is (1,1))
-4×5 Array{Float64,2}:
- 16.0  17.0  18.0  19.0  20.0
- 11.0  12.0  13.0  14.0  15.0
-  6.0   7.0   8.0   9.0  10.0
-  1.0   2.0   3.0   4.0   5.0</code></pre><p>Other data types on the same grid can be set up in similar fashion. To ensure that they have a size that is consistent with the dual node data <code>w</code>, we can use this in place of the size:</p><pre><code class="language-julia-repl">julia&gt; q = Edges(Primal,w);
+julia&gt; fill!(ens, ones(10))
+EnsembleState{5,Array{Float64,1}}(Array{Float64,1}[[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]])
+
+julia&gt; ens
+EnsembleState{5,Array{Float64,1}}(Array{Float64,1}[[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]])</code></pre><p><code>EnsembleState</code> supports three different constructors:</p><ul><li>The canonical one induced by the definition of <code>EnsembleState{N, TS}</code>:</li></ul><pre><code class="language-julia-repl">julia&gt; ens = EnsembleState(5, zeros(10))
+EnsembleState{5,Array{Float64,1}}(Array{Float64,1}[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
+
+julia&gt; fill!(ens, ones(10))
+EnsembleState{5,Array{Float64,1}}(Array{Float64,1}[[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]])
+
+julia&gt; ens
+EnsembleState{5,Array{Float64,1}}(Array{Float64,1}[[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]])</code></pre><p>Any type of state is supported by <code>EnKF</code> even your own data structures!</p><pre><code class="language-julia-repl">julia&gt; ens = EnsembleState(5,zeros(10) )
+EnsembleState{5,Array{Float64,1}}(Array{Float64,1}[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
+
+julia&gt; fill!(ens, ones(10))
+EnsembleState{5,Array{Float64,1}}(Array{Float64,1}[[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]])
+
+julia&gt; ens
+EnsembleState{5,Array{Float64,1}}(Array{Float64,1}[[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]])</code></pre><p>Note: in the previous example EnsembleState(5, zeros(10))`</p><pre><code class="language-julia-repl">julia&gt; q = Edges(Primal,w);
+ERROR: UndefVarError: Edges not defined
 
 julia&gt; q.u[2,3] = 1;
+ERROR: UndefVarError: q not defined
 
 julia&gt; q
-Edges{Primal,5,4} data
-u (in grid orientation)
-3×5 Array{Float64,2}:
- 0.0  1.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0
-v (in grid orientation)
-4×4 Array{Float64,2}:
- 0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0</code></pre><h2><a class="nav-anchor" id="Field-differencing-operations-1" href="#Field-differencing-operations-1">Field differencing operations</a></h2><p>Field operations transform one data type to another. Some of these are differencing operations, analogous to differential counterparts in continuum calculus: <code>curl</code>, <code>divergence</code>, and <code>gradient</code>. For example, a <code>curl</code> operation can act upon dual nodal data (like streamfunction) and return primal edge data (i.e. velocity); a <code>divergence</code> operation acts on edge data (primal or dual) and returns nodal data of the same cell type. Note that these operations are <em>mimetic</em>: they maintain some of the same properties as the continuous counterparts. For example, the divergence of the curl of any dual nodal data is exactly zero. The curl of the gradient of primal nodal data is also zero.</p><p>Let&#39;s take the curl of the dual nodal data we constructed:</p><pre><code class="language-julia-repl">julia&gt; curl(w)
-Edges{Primal,5,4} data
-u (in grid orientation)
-3×5 Array{Float64,2}:
- 5.0  5.0  5.0  5.0  5.0
- 5.0  5.0  5.0  5.0  5.0
- 5.0  5.0  5.0  5.0  5.0
-v (in grid orientation)
-4×4 Array{Float64,2}:
- -1.0  -1.0  -1.0  -1.0
- -1.0  -1.0  -1.0  -1.0
- -1.0  -1.0  -1.0  -1.0
- -1.0  -1.0  -1.0  -1.0</code></pre><p>We could also make this a little more cute by giving the curl operator a symbol and then acting upon the data as though it were a matrix-vector operation:</p><pre><code class="language-julia-repl">julia&gt; C = Curl()
-Curl()
+ERROR: UndefVarError: q not defined</code></pre><h2><a class="nav-anchor" id="Field-differencing-operations-1" href="#Field-differencing-operations-1">Field differencing operations</a></h2><p>Field operations transform one data type to another. Some of these are differencing operations, analogous to differential counterparts in continuum calculus: <code>curl</code>, <code>divergence</code>, and <code>gradient</code>. For example, a <code>curl</code> operation can act upon dual nodal data (like streamfunction) and return primal edge data (i.e. velocity); a <code>divergence</code> operation acts on edge data (primal or dual) and returns nodal data of the same cell type. Note that these operations are <em>mimetic</em>: they maintain some of the same properties as the continuous counterparts. For example, the divergence of the curl of any dual nodal data is exactly zero. The curl of the gradient of primal nodal data is also zero.</p><p>Let&#39;s take the curl of the dual nodal data we constructed:</p><pre><code class="language-julia-repl">julia&gt; curl(w)
+ERROR: UndefVarError: curl not defined</code></pre><p>We could also make this a little more cute by giving the curl operator a symbol and then acting upon the data as though it were a matrix-vector operation:</p><pre><code class="language-julia-repl">julia&gt; C = Curl()
+ERROR: UndefVarError: Curl not defined
 
 julia&gt; C*w
-Edges{Primal,5,4} data
-u (in grid orientation)
-3×5 Array{Float64,2}:
- 5.0  5.0  5.0  5.0  5.0
- 5.0  5.0  5.0  5.0  5.0
- 5.0  5.0  5.0  5.0  5.0
-v (in grid orientation)
-4×4 Array{Float64,2}:
- -1.0  -1.0  -1.0  -1.0
- -1.0  -1.0  -1.0  -1.0
- -1.0  -1.0  -1.0  -1.0
- -1.0  -1.0  -1.0  -1.0</code></pre><p>Note that <code>C</code> is not actually a matrix. Rather, it is simply another name for the <code>curl</code> operator, and <code>*</code> is defined in this context to apply <code>curl</code> to whatever is to the right of it. The other operators have similar constructs.</p><p>Suppose we wish to apply the <code>curl</code> operation over and over. The <code>curl()</code> function allocates memory for the result whenever it is used; this would become expensive if it is done often. So it makes sense to preallocate space for this result and use the <code>curl!()</code> function, which simply fills in the elements:</p><pre><code class="language-julia-repl">julia&gt; q = Edges(Primal,w)
-Edges{Primal,5,4} data
-u (in grid orientation)
-3×5 Array{Float64,2}:
- 0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0
-v (in grid orientation)
-4×4 Array{Float64,2}:
- 0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0
+ERROR: UndefVarError: C not defined</code></pre><p>Note that <code>C</code> is not actually a matrix. Rather, it is simply another name for the <code>curl</code> operator, and <code>*</code> is defined in this context to apply <code>curl</code> to whatever is to the right of it. The other operators have similar constructs.</p><p>Suppose we wish to apply the <code>curl</code> operation over and over. The <code>curl()</code> function allocates memory for the result whenever it is used; this would become expensive if it is done often. So it makes sense to preallocate space for this result and use the <code>curl!()</code> function, which simply fills in the elements:</p><pre><code class="language-julia-repl">julia&gt; q = Edges(Primal,w)
+ERROR: UndefVarError: Edges not defined
 
 julia&gt; curl!(q,w)
-Edges{Primal,5,4} data
-u (in grid orientation)
-3×5 Array{Float64,2}:
- 5.0  5.0  5.0  5.0  5.0
- 5.0  5.0  5.0  5.0  5.0
- 5.0  5.0  5.0  5.0  5.0
-v (in grid orientation)
-4×4 Array{Float64,2}:
- -1.0  -1.0  -1.0  -1.0
- -1.0  -1.0  -1.0  -1.0
- -1.0  -1.0  -1.0  -1.0
- -1.0  -1.0  -1.0  -1.0</code></pre><p>Note that we used a convenience function for setting up primal edge data <code>q</code> of a size that corresponds with <code>w</code>.</p><p>Let&#39;s check that divergence of the curl is indeed zero:</p><pre><code class="language-julia-repl">julia&gt; D = Divergence()
-Divergence()
+ERROR: UndefVarError: curl! not defined</code></pre><p>Note that we used a convenience function for setting up primal edge data <code>q</code> of a size that corresponds with <code>w</code>.</p><p>Let&#39;s check that divergence of the curl is indeed zero:</p><pre><code class="language-julia-repl">julia&gt; D = Divergence()
+ERROR: UndefVarError: Divergence not defined
 
 julia&gt; D*(C*w)
-Nodes{Primal,5,4} data
-Printing in grid orientation (lower left is (1,1))
-3×4 Array{Float64,2}:
- 0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0</code></pre><h2><a class="nav-anchor" id="The-Laplacian-and-its-inverse-1" href="#The-Laplacian-and-its-inverse-1">The Laplacian and its inverse</a></h2><p><code>ViscousFlow</code> also makes heavy use of the discrete Laplacian operator, <span>$L$</span>. This mimics the continuous operator, <span>$\nabla^2$</span>, and acts upon data of any type. Let&#39;s apply this to the original data:</p><pre><code class="language-julia-repl">julia&gt; laplacian(w)
-Nodes{Dual,5,4} data
-Printing in grid orientation (lower left is (1,1))
-4×5 Array{Float64,2}:
- 0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0</code></pre><p>As with the other operators, we can also construct a shorthand of the discrete Laplacian operator,</p><pre><code class="language-julia-repl">julia&gt; L = plan_laplacian(size(w))
-Discrete Laplacian on a (nx = 5, ny = 4) grid with spacing 1.0
+ERROR: UndefVarError: C not defined</code></pre><h2><a class="nav-anchor" id="The-Laplacian-and-its-inverse-1" href="#The-Laplacian-and-its-inverse-1">The Laplacian and its inverse</a></h2><p><code>ViscousFlow</code> also makes heavy use of the discrete Laplacian operator, <span>$L$</span>. This mimics the continuous operator, <span>$\nabla^2$</span>, and acts upon data of any type. Let&#39;s apply this to the original data:</p><pre><code class="language-julia-repl">julia&gt; laplacian(w)
+ERROR: UndefVarError: laplacian not defined</code></pre><p>As with the other operators, we can also construct a shorthand of the discrete Laplacian operator,</p><pre><code class="language-julia-repl">julia&gt; L = plan_laplacian(size(w))
+ERROR: UndefVarError: w not defined
 
 julia&gt; L*w
-Nodes{Dual,5,4} data
-Printing in grid orientation (lower left is (1,1))
-4×5 Array{Float64,2}:
- 0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0</code></pre><p>An important part of <code>ViscousFlow</code> is the <em>inverse</em> of this operator. That is, we need the ability to solve the discrete Poisson system</p><div>\[Ls = w\]</div><p>for <span>$s$</span>, for given data <span>$w$</span>. We achieve this in <code>ViscousFlow</code> with the <em>lattice Green&#39;s function</em>. To outfit the operator with its inverse, we simply set the optional flag:</p><pre><code class="language-julia-repl">julia&gt; L = plan_laplacian(size(w),with_inverse=true)
-Discrete Laplacian (and inverse) on a (nx = 5, ny = 4) grid with spacing 1.0</code></pre><p>Then, the Poisson system is solved with the backslash (<code>\</code>),</p><pre><code class="language-julia-repl">julia&gt; s = L\w
-Nodes{Dual,5,4} data
-Printing in grid orientation (lower left is (1,1))
-4×5 Array{Float64,2}:
- 24.082   15.9349  12.2076  13.0464  19.5282
- 23.5931  15.0969  11.0184  11.7015  18.2956
- 29.2015  21.841   18.0677  18.4457  23.9041
- 37.5698  31.9978  28.9659  29.1093  33.016
+ERROR: UndefVarError: L not defined</code></pre><p>An important part of <code>ViscousFlow</code> is the <em>inverse</em> of this operator. That is, we need the ability to solve the discrete Poisson system</p><div>\[Ls = w\]</div><p>for <span>$s$</span>, for given data <span>$w$</span>. We achieve this in <code>ViscousFlow</code> with the <em>lattice Green&#39;s function</em>. To outfit the operator with its inverse, we simply set the optional flag:</p><pre><code class="language-julia-repl">julia&gt; L = plan_laplacian(size(w),with_inverse=true)
+ERROR: UndefVarError: w not defined</code></pre><p>Then, the Poisson system is solved with the backslash (<code>\</code>),</p><pre><code class="language-julia-repl">julia&gt; s = L\w
+ERROR: UndefVarError: L not defined
 
 julia&gt; L*s
-Nodes{Dual,5,4} data
-Printing in grid orientation (lower left is (1,1))
-4×5 Array{Float64,2}:
- 0.0   0.0   0.0   0.0  0.0
- 0.0  12.0  13.0  14.0  0.0
- 0.0   7.0   8.0   9.0  0.0
- 0.0   0.0   0.0   0.0  0.0</code></pre><p>It should be observed that the cells on the perimeter have not recovered the original values of <code>w</code>. These are the ghost cells, and the Laplacian operation does not apply to these.</p><p>It is also important to note that, although it looks as though we&#39;ve constructed a matrix <code>L</code> and performed various matrix-vector operations with it, this is not actually the case. In fact, the <code>\</code> operation associated with <code>L</code> is significantly faster than a matrix inversion. Internally, it carries out a fast convolution between the data in <code>w</code> and the lattice Green&#39;s function, via fast Fourier transform. The lattice Green&#39;s function (LGF) table is pre-computed and pre-transformed in the original construction of <code>L</code>. (In fact, because this table is not dependent on the size of the grid, it is actually computed once for all time and stored in a file; subsequent applications of it just load it in and use the portion of it necessary for a certain grid.)</p><p>The lattice Green&#39;s function has the advantage that it is independent of the grid size. Let&#39;s solve the Poisson system when <span>$w$</span> is a unit field, i.e. a field of zeros, except for a single <span>$1$</span> entry at one node. The solution <span>$s$</span> represents the influence of this point on all nodes. To see that the LGF does not depend on the grid size, let&#39;s use a grid that is long and skinny and plot the solution on it</p><pre><code class="language-julia-repl">julia&gt; w = Nodes(Dual,(50,10));
+ERROR: UndefVarError: L not defined</code></pre><p>It should be observed that the cells on the perimeter have not recovered the original values of <code>w</code>. These are the ghost cells, and the Laplacian operation does not apply to these.</p><p>It is also important to note that, although it looks as though we&#39;ve constructed a matrix <code>L</code> and performed various matrix-vector operations with it, this is not actually the case. In fact, the <code>\</code> operation associated with <code>L</code> is significantly faster than a matrix inversion. Internally, it carries out a fast convolution between the data in <code>w</code> and the lattice Green&#39;s function, via fast Fourier transform. The lattice Green&#39;s function (LGF) table is pre-computed and pre-transformed in the original construction of <code>L</code>. (In fact, because this table is not dependent on the size of the grid, it is actually computed once for all time and stored in a file; subsequent applications of it just load it in and use the portion of it necessary for a certain grid.)</p><p>The lattice Green&#39;s function has the advantage that it is independent of the grid size. Let&#39;s solve the Poisson system when <span>$w$</span> is a unit field, i.e. a field of zeros, except for a single <span>$1$</span> entry at one node. The solution <span>$s$</span> represents the influence of this point on all nodes. To see that the LGF does not depend on the grid size, let&#39;s use a grid that is long and skinny and plot the solution on it</p><pre><code class="language-julia-repl">julia&gt; w = Nodes(Dual,(50,10));
+ERROR: UndefVarError: Nodes not defined
 
 julia&gt; w[20,5] = 1.0
-1.0
+ERROR: UndefVarError: w not defined
 
 julia&gt; L = plan_laplacian(w,with_inverse=true)
-Discrete Laplacian (and inverse) on a (nx = 50, ny = 10) grid with spacing 1.0
+ERROR: UndefVarError: plan_laplacian not defined
 
 julia&gt; plot(L\w)
-Plot{Plots.GRBackend() n=1}</code></pre><p><img src="../Linvw.svg" alt/></p><p>The influence is not affected by the narrow grid dimensions.</p><h2><a class="nav-anchor" id="The-integrating-factor-1" href="#The-integrating-factor-1">The integrating factor</a></h2><p>An operator related to the lattice Green&#39;s function is the <em>integrating factor</em>. Suppose we have the system of ODEs</p><div>\[\ddt u = L u + f(u,t), \quad u(0) = u_0,\]</div><p>where <span>$L$</span> is the discrete Laplacian (on an infinite uniform grid), and <span>$u$</span> are nodal data (and <span>$f$</span> is a nodal-valued function acting on this nodal data). The exact solution of this problem is</p><div>\[u(t) = E(t)u_0 + \int_0^t E(t-\tau) f(u(\tau),\tau)\,\mathrm{d}\tau,\]</div><p>where <span>$E(t)$</span> is the integrating factor (or matrix exponential) for the system. The easiest way to understand the role of <span>$E(t)$</span> is to consider its behavior when <span>$f$</span> is zero and <span>$u_0$</span> contains a field of zeros except for a single <span>$1$</span> entry at one cell. Let&#39;s set up this initial data:</p><pre><code class="language-julia-repl">julia&gt; u0 = Nodes(Dual,(100,100));
+ERROR: UndefVarError: L not defined</code></pre><p><img src="Linvw.svg" alt/></p><p>The influence is not affected by the narrow grid dimensions.</p><h2><a class="nav-anchor" id="The-integrating-factor-1" href="#The-integrating-factor-1">The integrating factor</a></h2><p>An operator related to the lattice Green&#39;s function is the <em>integrating factor</em>. Suppose we have the system of ODEs</p><div>\[\ddt u = L u + f(u,t), \quad u(0) = u_0,\]</div><p>where <span>$L$</span> is the discrete Laplacian (on an infinite uniform grid), and <span>$u$</span> are nodal data (and <span>$f$</span> is a nodal-valued function acting on this nodal data). The exact solution of this problem is</p><div>\[u(t) = E(t)u_0 + \int_0^t E(t-\tau) f(u(\tau),\tau)\,\mathrm{d}\tau,\]</div><p>where <span>$E(t)$</span> is the integrating factor (or matrix exponential) for the system. The easiest way to understand the role of <span>$E(t)$</span> is to consider its behavior when <span>$f$</span> is zero and <span>$u_0$</span> contains a field of zeros except for a single <span>$1$</span> entry at one cell. Let&#39;s set up this initial data:</p><pre><code class="language-julia-repl">julia&gt; u0 = Nodes(Dual,(100,100));
+ERROR: UndefVarError: Nodes not defined
 
 julia&gt; u0[40,50] = 1.0
-1.0
+ERROR: UndefVarError: u0 not defined
 
 julia&gt; plot(u0)
-Plot{Plots.GRBackend() n=1}</code></pre><p><img src="../w1.svg" alt/></p><p>Then, <span>$E(t)u_0$</span> diffuses this initial unit perturbation in each direction. Here, we apply it with <span>$t = 5$</span>:</p><pre><code class="language-julia-repl">julia&gt; E = plan_intfact(5,u0)
-Integrating factor with parameter 5 on a (nx = 100, ny = 100) grid
+ERROR: UndefVarError: u0 not defined</code></pre><p><img src="w1.svg" alt/></p><p>Then, <span>$E(t)u_0$</span> diffuses this initial unit perturbation in each direction. Here, we apply it with <span>$t = 5$</span>:</p><pre><code class="language-julia-repl">julia&gt; E = plan_intfact(5,u0)
+ERROR: UndefVarError: plan_intfact not defined
 
 julia&gt; plot(E*u0)
-Plot{Plots.GRBackend() n=1}</code></pre><p><img src="../Ew1.svg" alt/></p><p>Note that <span>$E(0) = I$</span>, where <span>$I$</span> is the identity. Also, the integrating factor has the useful property that <span>$E(t+\tau) = E(t)E(\tau)$</span>. From these properties, it follows that <span>$E^{-1}(t) = E(-t)$</span>. Let&#39;s suppose we wish to advance <span>$u$</span> from time <span>$t = \tau-h$</span> to time <span>$t = \tau$</span>. For any <span>$t$</span> in this interval, we can define an auxiliary quantity, <span>$v(t;\tau) = E(\tau-t)u(t)$</span>, which represents the instantaneous value of <span>$u$</span>, but diffused to the end of the time interval. This new quantity satisfies the modified set of ODEs</p><div>\[\ddt v = E(\tau-t) f\left[ E(t-\tau) v(t;\tau),t\right],\quad v(\tau-h;\tau) = E(h)u(\tau-h)\]</div><p>The result of integrating this set of ODEs to <span>$t = \tau$</span> is <span>$v(\tau;\tau) = u(\tau)$</span>. In other words, the integrating factor allows us to solve a somewhat reduced set of ODEs.</p><h2><a class="nav-anchor" id="Other-field-operations-1" href="#Other-field-operations-1">Other field operations</a></h2><p>Other field operations shift the data, by local averaging, from one data type to another. These operations are all called <code>cellshift!</code>, and they require that the target data be preallocated. For example, to shift dual node data to the dual edges,</p><pre><code class="language-julia-repl">julia&gt; w = Nodes(Dual,(5,4));
+ERROR: UndefVarError: E not defined</code></pre><p><img src="Ew1.svg" alt/></p><p>Note that <span>$E(0) = I$</span>, where <span>$I$</span> is the identity. Also, the integrating factor has the useful property that <span>$E(t+\tau) = E(t)E(\tau)$</span>. From these properties, it follows that <span>$E^{-1}(t) = E(-t)$</span>. Let&#39;s suppose we wish to advance <span>$u$</span> from time <span>$t = \tau-h$</span> to time <span>$t = \tau$</span>. For any <span>$t$</span> in this interval, we can define an auxiliary quantity, <span>$v(t;\tau) = E(\tau-t)u(t)$</span>, which represents the instantaneous value of <span>$u$</span>, but diffused to the end of the time interval. This new quantity satisfies the modified set of ODEs</p><div>\[\ddt v = E(\tau-t) f\left[ E(t-\tau) v(t;\tau),t\right],\quad v(\tau-h;\tau) = E(h)u(\tau-h)\]</div><p>The result of integrating this set of ODEs to <span>$t = \tau$</span> is <span>$v(\tau;\tau) = u(\tau)$</span>. In other words, the integrating factor allows us to solve a somewhat reduced set of ODEs.</p><h2><a class="nav-anchor" id="Other-field-operations-1" href="#Other-field-operations-1">Other field operations</a></h2><p>Other field operations shift the data, by local averaging, from one data type to another. These operations are all called <code>cellshift!</code>, and they require that the target data be preallocated. For example, to shift dual node data to the dual edges,</p><pre><code class="language-julia-repl">julia&gt; w = Nodes(Dual,(5,4));
+ERROR: UndefVarError: Nodes not defined
 
 julia&gt; w .= reshape(1:20,5,4)
-Nodes{Dual,5,4} data
-Printing in grid orientation (lower left is (1,1))
-4×5 Array{Float64,2}:
- 16.0  17.0  18.0  19.0  20.0
- 11.0  12.0  13.0  14.0  15.0
-  6.0   7.0   8.0   9.0  10.0
-  1.0   2.0   3.0   4.0   5.0
+ERROR: UndefVarError: w not defined
 
 julia&gt; Ww = Edges(Dual,w);
+ERROR: UndefVarError: Edges not defined
 
 julia&gt; cellshift!(Ww,w)
-Edges{Dual,5,4} data
-u (in grid orientation)
-4×4 Array{Float64,2}:
-  0.0   0.0   0.0   0.0
- 11.5  12.5  13.5  14.5
-  6.5   7.5   8.5   9.5
-  0.0   0.0   0.0   0.0
-v (in grid orientation)
-3×5 Array{Float64,2}:
- 0.0  14.5  15.5  16.5  0.0
- 0.0   9.5  10.5  11.5  0.0
- 0.0   4.5   5.5   6.5  0.0</code></pre><p>Note that the edges in the ghost cells are 0; these edges are not assigned any values in the shift operation.</p><p>We can then shift this to primal edges:</p><pre><code class="language-julia-repl">julia&gt; q = Edges(Primal,w);
+ERROR: UndefVarError: cellshift! not defined</code></pre><p>Note that the edges in the ghost cells are 0; these edges are not assigned any values in the shift operation.</p><p>We can then shift this to primal edges:</p><pre><code class="language-julia-repl">julia&gt; q = Edges(Primal,w);
+ERROR: UndefVarError: Edges not defined
 
 julia&gt; cellshift!(q,Ww)
-Edges{Primal,5,4} data
-u (in grid orientation)
-3×5 Array{Float64,2}:
- 0.0  6.0   6.5   7.0  0.0
- 0.0  9.5  10.5  11.5  0.0
- 0.0  3.5   4.0   4.5  0.0
-v (in grid orientation)
-4×4 Array{Float64,2}:
- 0.0   0.0   0.0  0.0
- 6.0  12.5  13.5  7.0
- 3.5   7.5   8.5  4.5
- 0.0   0.0   0.0  0.0</code></pre><p>We can also compute the Hadamard (i.e. element by element) product of any data of the same type, e.g.,</p><pre><code class="language-julia-repl">julia&gt; q∘q
-Edges{Primal,5,4} data
-u (in grid orientation)
-3×5 Array{Float64,2}:
- 0.0  36.0    42.25   49.0   0.0
- 0.0  90.25  110.25  132.25  0.0
- 0.0  12.25   16.0    20.25  0.0
-v (in grid orientation)
-4×4 Array{Float64,2}:
-  0.0     0.0     0.0    0.0
- 36.0   156.25  182.25  49.0
- 12.25   56.25   72.25  20.25
-  0.0     0.0     0.0    0.0</code></pre><h2><a class="nav-anchor" id="The-grid-in-physical-space-1" href="#The-grid-in-physical-space-1">The grid in physical space</a></h2><p>Thus far, we have not had to consider the relationship between the grid&#39;s index space and some physical space. All of the operations thus far have acted on the entries in the discrete fields, based only on their relative indices, and not on their physical coordinates. In this section, we will discuss the relationship between the grid&#39;s index space and physical space, and then in the next section we&#39;ll discuss how we can transfer data between these spaces.</p><p>Generically, we can write the relationship between the physical coordinates <span>$x$</span> and <span>$y$</span>, and the indices <span>$i$</span> and <span>$j$</span> of any grid point as</p><div>\[x(i) = (i - \Delta i - i_0)\Delta x, \quad y(j) = (j - \Delta j - j_0)\Delta x\]</div><p>The scaling between these spaces is controlled by <span>$\Delta x$</span>, which represents the uniform size of each grid cell; note that grid cells are presumed to be square in <code>ViscousFlow</code>. The indices <span>$I_0 = (i_0,j_0)$</span> represent the location of the origin <em>in the index space for primal nodes</em>. Why primal nodes? Since the underlying grid is composed of dual cells, then primal nodes sit at the corners of the domain, so it is the most convenient for anchoring the grid to a specific point. But, since some field data of the same index are shifted by half a cell in one or both directions, then <span>$\Delta i$</span> and <span>$\Delta j$</span> are included for such purposes; these are either <span>$0$</span> or <span>$1/2$</span>, depending on the field type. For example, for a primal node, <span>$\Delta i = 0$</span>, so that <span>$x(i_0) = 0$</span>; for a dual node, <span>$\Delta i = 1/2$</span>, so that <span>$x(i_0) = -\Delta x/2$</span>.</p><p>In particular, for our four different data types and their components</p><ul><li>Primal nodes: <span>$\Delta i = 0$</span>, <span>$\Delta j = 0$</span></li><li>Dual nodes: <span>$\Delta i = 1/2$</span>, <span>$\Delta j = 1/2$</span></li><li>Primal edges u: <span>$\Delta i = 1/2$</span>, <span>$\Delta j = 0$</span></li><li>Primal edges v: <span>$\Delta i = 0$</span>, <span>$\Delta j = 1/2$</span></li><li>Dual edges u: <span>$\Delta i = 0$</span>, <span>$\Delta j = 1/2$</span></li><li>Dual edges v: <span>$\Delta i = 1/2$</span>, <span>$\Delta j = 0$</span></li></ul><h2><a class="nav-anchor" id="Regularization-and-interpolation-1" href="#Regularization-and-interpolation-1">Regularization and interpolation</a></h2><p>Based on this relationship between the physical space and the index space, we can now construct a means of transferring data between a point <span>$(x,y)$</span> in the physical space and the grid points in its immediate vicinity. We say that such a point is <em>immersed</em> in the grid. The process of transferring from the point to the  grid is called <em>regularization</em>, since we are effectively smearing this data over some extended neighborhood; the opposite operation, transferring grid field data to an arbitrary point, is  <em>interpolation</em>. In <code>ViscousFlow</code>, both operations are carried out with the <em>discrete  delta function</em> (DDF), which is a discrete analog of the Dirac delta function. The  DDF generally has compact support, so that  it only interacts with a small number of grid points in the vicinity of a  given physical location. Since each of the different field types reside at  slightly different locations, the range of indices invoked in this interaction  will be different for each field type.</p><p>Regularization can actually take different forms. It can be a simple point-wise interpolation, the discrete analog of simply multiplying by the Dirac delta function:</p><div>\[f_i \delta(\mathbf{x} - \mathbf{x}_i)\]</div><p>to immerse a value <span>$f_i$</span> based at point <span>$\mathbf{x}_i = (x_i,y_i)$</span>.</p><p>Alternatively, regularization can be carried out over a curve <span>$\mathbf{X}(s)$</span>, the analog of</p><div>\[\int f(s) \delta(\mathbf{x} - \mathbf{X}(s))\mathrm{d}s\]</div><p>or it can be performed volumetrically, corresponding to</p><div>\[\int f(\mathbf{y}) \delta(\mathbf{x} - \mathbf{y})\mathrm{d}\mathbf{y}\]</div><p>In this case, the function <span>$f$</span> is distributed over some region of space. In each of these cases, the discrete version is simply a sum over data at a finite number of discrete points, and the type of regularization is specified by providing an optional argument specifying the arclength, area or volume associated with each discrete point. These arguments are used to weight the sum.</p><p>Let&#39;s see the regularization and interpolation in action. We will set up a ring  of 100 points on a circle of radius <span>$1/4$</span> centered at <span>$(1/2,1/2)$</span>. This curve-  type regularization will be weighted by the arclength, <span>$ds$</span>, associated with each  of the 100 points.  On these points, we will  set vector-valued data in which the <span>$x$</span> component is uniformly equal to 1.0,  while the <span>$y$</span> component is set equal to the vertical position relative to the  circle center. We will regularize these vector data to a primal  edge field on the grid in which these points are immersed.</p><div></div><pre><code class="language-julia-repl">julia&gt; n = 100;
+ERROR: UndefVarError: cellshift! not defined</code></pre><p>We can also compute the Hadamard (i.e. element by element) product of any data of the same type, e.g.,</p><pre><code class="language-julia-repl">julia&gt; q∘q
+ERROR: UndefVarError: q not defined</code></pre><h2><a class="nav-anchor" id="The-grid-in-physical-space-1" href="#The-grid-in-physical-space-1">The grid in physical space</a></h2><p>Thus far, we have not had to consider the relationship between the grid&#39;s index space and some physical space. All of the operations thus far have acted on the entries in the discrete fields, based only on their relative indices, and not on their physical coordinates. In this section, we will discuss the relationship between the grid&#39;s index space and physical space, and then in the next section we&#39;ll discuss how we can transfer data between these spaces.</p><p>Generically, we can write the relationship between the physical coordinates <span>$x$</span> and <span>$y$</span>, and the indices <span>$i$</span> and <span>$j$</span> of any grid point as</p><div>\[x(i) = (i - \Delta i - i_0)\Delta x, \quad y(j) = (j - \Delta j - j_0)\Delta x\]</div><p>The scaling between these spaces is controlled by <span>$\Delta x$</span>, which represents the uniform size of each grid cell; note that grid cells are presumed to be square in <code>ViscousFlow</code>. The indices <span>$I_0 = (i_0,j_0)$</span> represent the location of the origin <em>in the index space for primal nodes</em>. Why primal nodes? Since the underlying grid is composed of dual cells, then primal nodes sit at the corners of the domain, so it is the most convenient for anchoring the grid to a specific point. But, since some field data of the same index are shifted by half a cell in one or both directions, then <span>$\Delta i$</span> and <span>$\Delta j$</span> are included for such purposes; these are either <span>$0$</span> or <span>$1/2$</span>, depending on the field type. For example, for a primal node, <span>$\Delta i = 0$</span>, so that <span>$x(i_0) = 0$</span>; for a dual node, <span>$\Delta i = 1/2$</span>, so that <span>$x(i_0) = -\Delta x/2$</span>.</p><p>In particular, for our four different data types and their components</p><ul><li>Primal nodes: <span>$\Delta i = 0$</span>, <span>$\Delta j = 0$</span></li><li>Dual nodes: <span>$\Delta i = 1/2$</span>, <span>$\Delta j = 1/2$</span></li><li>Primal edges u: <span>$\Delta i = 1/2$</span>, <span>$\Delta j = 0$</span></li><li>Primal edges v: <span>$\Delta i = 0$</span>, <span>$\Delta j = 1/2$</span></li><li>Dual edges u: <span>$\Delta i = 0$</span>, <span>$\Delta j = 1/2$</span></li><li>Dual edges v: <span>$\Delta i = 1/2$</span>, <span>$\Delta j = 0$</span></li></ul><h2><a class="nav-anchor" id="Regularization-and-interpolation-1" href="#Regularization-and-interpolation-1">Regularization and interpolation</a></h2><p>Based on this relationship between the physical space and the index space, we can now construct a means of transferring data between a point <span>$(x,y)$</span> in the physical space and the grid points in its immediate vicinity. We say that such a point is <em>immersed</em> in the grid. The process of transferring from the point to the  grid is called <em>regularization</em>, since we are effectively smearing this data over some extended neighborhood; the opposite operation, transferring grid field data to an arbitrary point, is  <em>interpolation</em>. In <code>ViscousFlow</code>, both operations are carried out with the <em>discrete  delta function</em> (DDF), which is a discrete analog of the Dirac delta function. The  DDF generally has compact support, so that  it only interacts with a small number of grid points in the vicinity of a  given physical location. Since each of the different field types reside at  slightly different locations, the range of indices invoked in this interaction  will be different for each field type.</p><p>Regularization can actually take different forms. It can be a simple point-wise interpolation, the discrete analog of simply multiplying by the Dirac delta function:</p><div>\[f_i \delta(\mathbf{x} - \mathbf{x}_i)\]</div><p>to immerse a value <span>$f_i$</span> based at point <span>$\mathbf{x}_i = (x_i,y_i)$</span>.</p><p>Alternatively, regularization can be carried out over a curve <span>$\mathbf{X}(s)$</span>, the analog of</p><div>\[\int f(s) \delta(\mathbf{x} - \mathbf{X}(s))\mathrm{d}s\]</div><p>or it can be performed volumetrically, corresponding to</p><div>\[\int f(\mathbf{y}) \delta(\mathbf{x} - \mathbf{y})\mathrm{d}\mathbf{y}\]</div><p>In this case, the function <span>$f$</span> is distributed over some region of space. In each of these cases, the discrete version is simply a sum over data at a finite number of discrete points, and the type of regularization is specified by providing an optional argument specifying the arclength, area or volume associated with each discrete point. These arguments are used to weight the sum.</p><p>Let&#39;s see the regularization and interpolation in action. We will set up a ring  of 100 points on a circle of radius <span>$1/4$</span> centered at <span>$(1/2,1/2)$</span>. This curve-  type regularization will be weighted by the arclength, <span>$ds$</span>, associated with each  of the 100 points.  On these points, we will  set vector-valued data in which the <span>$x$</span> component is uniformly equal to 1.0,  while the <span>$y$</span> component is set equal to the vertical position relative to the  circle center. We will regularize these vector data to a primal  edge field on the grid in which these points are immersed.</p><div></div><pre><code class="language-julia-repl">julia&gt; n = 100;
 
 julia&gt; θ = range(0,stop=2π,length=n+1);
 
@@ -722,4 +611,4 @@ julia&gt; f + (2,3)
  2.0  3.0
  2.0  3.0</code></pre></div></div></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="Base.length-Tuple{PhysicalGrid}" href="#Base.length-Tuple{PhysicalGrid}"><code>Base.length</code></a> — <span class="docstring-category">Method</span>.</div><div><div><pre><code class="language-julia">length(g::PhysicalGrid,d::Int) -&gt; Int</code></pre><p>Return the total number of cells in grid <code>g</code>.</p></div></div></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="Base.size-Tuple{PhysicalGrid,Int64}" href="#Base.size-Tuple{PhysicalGrid,Int64}"><code>Base.size</code></a> — <span class="docstring-category">Method</span>.</div><div><div><pre><code class="language-julia">size(g::PhysicalGrid,d::Int) -&gt; Int</code></pre><p>Return the number of cells in direction <code>d</code> in grid <code>g</code>.</p></div></div></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="Base.size-Tuple{PhysicalGrid}" href="#Base.size-Tuple{PhysicalGrid}"><code>Base.size</code></a> — <span class="docstring-category">Method</span>.</div><div><div><pre><code class="language-julia">size(g::PhysicalGrid) -&gt; Tuple</code></pre><p>Return a tuple of the number of cells in all directions in grid <code>g</code>.</p></div></div></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="Base.size-Tuple{TensorData}" href="#Base.size-Tuple{TensorData}"><code>Base.size</code></a> — <span class="docstring-category">Method</span>.</div><div><div><pre><code class="language-julia">size(A::TensorData) -&gt; Tuple</code></pre><p>Return a tuple of the number of tensor data points by the number of dimensions.</p></div></div></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="Base.size-Tuple{VectorData}" href="#Base.size-Tuple{VectorData}"><code>Base.size</code></a> — <span class="docstring-category">Method</span>.</div><div><div><pre><code class="language-julia">size(A::VectorData) -&gt; Tuple</code></pre><p>Return a tuple of the number of vector data points by the number of dimensions.</p></div></div></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="Base.size-Union{Tuple{N}, Tuple{TensorData{N},Int64}} where N" href="#Base.size-Union{Tuple{N}, Tuple{TensorData{N},Int64}} where N"><code>Base.size</code></a> — <span class="docstring-category">Method</span>.</div><div><div><pre><code class="language-julia">size(A::TensorData,d::Int) -&gt; Int</code></pre><p>Return four times the number of tensor data points if <code>d</code> is 1 (the sum of the length of the four components) and 1 if <code>d</code> is 2. This is consistent with the interpretation of TensorData as a stacked set of columns.</p></div></div></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="Base.size-Union{Tuple{N}, Tuple{VectorData{N},Int64}} where N" href="#Base.size-Union{Tuple{N}, Tuple{VectorData{N},Int64}} where N"><code>Base.size</code></a> — <span class="docstring-category">Method</span>.</div><div><div><pre><code class="language-julia">size(A::VectorData,d::Int) -&gt; Int</code></pre><p>Return twice the number of vector data points if <code>d</code> is 1 (the sum of the length of the <code>u</code> and <code>v</code> vectors) and 1 if <code>d</code> is 2. This is consistent with the interpretation of VectorData as a stacked pair of columns, corresponding to the <code>u</code> and <code>v</code> components, respectively.</p></div></div></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LinearAlgebra.cross-Tuple{Number,VectorData}" href="#LinearAlgebra.cross-Tuple{Number,VectorData}"><code>LinearAlgebra.cross</code></a> — <span class="docstring-category">Method</span>.</div><div><div><pre><code class="language-julia">cross(a::Number,A::VectorData) -&gt; VectorData
 ×(a::Number,A::VectorData) -&gt; VectorData</code></pre><p>Compute the cross product between the scalar <code>a</code> (treated as an out-of-plane component of a vector) and the planar vector data <code>A</code>.</p></div></div></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LinearAlgebra.dot-Union{Tuple{T}, Tuple{Tuple{T,T},TensorData}} where T&lt;:Number" href="#LinearAlgebra.dot-Union{Tuple{T}, Tuple{Tuple{T,T},TensorData}} where T&lt;:Number"><code>LinearAlgebra.dot</code></a> — <span class="docstring-category">Method</span>.</div><div><div><pre><code class="language-julia">dot(v::Tuple{T,T},B::TensorData) where {T&lt;:Number} -&gt; VectorData
-⋅(v::Tuple{T,T},B::TensorData) where {T&lt;:Number} -&gt; VectorData</code></pre><p>Computes the dot product between the tuple <code>v</code> and the elements of a tensor <code>B</code> on a set of points and returns vector data on the same set of points.</p></div></div></section><h2><a class="nav-anchor" id="Index-1" href="#Index-1">Index</a></h2><ul></ul><footer><hr/><a class="previous" href="../inflation/"><span class="direction">Previous</span><span class="title">Bodies</span></a><a class="next" href="../system/"><span class="direction">Next</span><span class="title">Ensemble Kalman filter systems</span></a></footer></article></body></html>
+⋅(v::Tuple{T,T},B::TensorData) where {T&lt;:Number} -&gt; VectorData</code></pre><p>Computes the dot product between the tuple <code>v</code> and the elements of a tensor <code>B</code> on a set of points and returns vector data on the same set of points.</p></div></div></section><h2><a class="nav-anchor" id="Index-1" href="#Index-1">Index</a></h2><ul></ul><footer><hr/><a class="previous" href="../../"><span class="direction">Previous</span><span class="title">Home</span></a></footer></article></body></html>

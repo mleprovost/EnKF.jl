@@ -17,8 +17,8 @@ export InflationType, IdentityInflation, AdditiveInflation, MultiplicativeInflat
 
 An abstract type for Inflation.
 """
-
 abstract type InflationType end
+
 
 """
     IdentityInflation
@@ -28,18 +28,13 @@ An type to store identity inflation :
 
 Define additive inflation: x <- x
 
-
-
 """
-
-
 mutable struct IdentityInflation <: InflationType
 
 end
 
 
 " Define action of IdentityInflation on an EnsembleState : x <- x  "
-
 function (A::IdentityInflation)(ENS::EnsembleState{N, TS}) where {N, TS}
     return ENS
 end
@@ -58,8 +53,6 @@ drawn from a random distribution
 - 'α' : Distribution of the additive inflation
 
 """
-
-
 mutable struct AdditiveInflation{NS} <: InflationType
 
     "Distribution of the additive inflation α"
@@ -111,8 +104,9 @@ cov(A::AdditiveInflation{NS}) where {NS} = cov(A.α)
 
 
 
-" Define action of AdditiveInflation on an EnsembleState : x <- x + α "
-
+"""
+Define action of AdditiveInflation on an EnsembleState : x <- x + α
+"""
 function (A::AdditiveInflation{NS})(ENS::EnsembleState{N, TS}) where {N, NS, TS}
     for s in ENS.S
         s .+= rand(A.α)
@@ -133,8 +127,6 @@ Define multiplicative inflation: x <- x + β*(x - x̂) with β a scalar
 - 'β' : multiplicative inflation factor
 
 """
-
-
 mutable struct MultiplicativeInflation{NS} <: InflationType
 
     "Multiplicative inflation factor β"
@@ -162,8 +154,9 @@ Return the dimension of the multiplicative inflation
 Base.length(A::MultiplicativeInflation{NS}) where {NS} = NS
 
 
-"Define action of MultiplicativeInflation : x <- x̂ + β*(x - x̂)"
-
+"""
+Define action of MultiplicativeInflation : x <- x̂ + β*(x - x̂)
+"""
 function (A::MultiplicativeInflation{NS})(ENS::EnsembleState{N, TS}) where {N, NS, TS}
     Ŝ = deepcopy(mean(ENS))
     for s in ENS.S
@@ -186,8 +179,6 @@ Define multiplico-additive inflation: x̃⁻ <- x̂⁻ + β*(x̃⁻ - x̂⁻)  +
 - 'α' : Distribution of the additive inflation
 
 """
-
-
 mutable struct MultiAdditiveInflation{NS} <: InflationType
 
     "Multiplicative inflation factor β"
@@ -234,8 +225,9 @@ var(A::MultiAdditiveInflation{NS}) where {NS} = var(A.α)
 cov(A::MultiAdditiveInflation{NS}) where {NS} = cov(A.α)
 
 
-"Define action of MultiplicativeInflation : x <- x̂ + β*(x - x̂)"
-
+"""
+Define action of MultiplicativeInflation : x <- x̂ + β*(x - x̂)
+"""
 function (A::MultiAdditiveInflation{NS})(ENS::EnsembleState{N, TS}) where {N, NS, TS}
     Ŝ = deepcopy(mean(ENS))
     for s in ENS.S
@@ -248,8 +240,8 @@ end
  ### Code from LowLevelParticleFilters.jl to define tuple of Distributions
 """
  Mixed value support indicates that the distribution is a mix of continuous and discrete dimensions.
- """
- struct Mixed <: ValueSupport end
+"""
+struct Mixed <: ValueSupport end
 
 """
     TupleProduct(v::NTuple{N,UnivariateDistribution})
@@ -287,7 +279,6 @@ A structure to generate covariance inflation distribution from parameters p
 - 'p' : Vector{Float64}
 
 """
-
 mutable struct RecipeInflation
     p::Vector{Real}
 end

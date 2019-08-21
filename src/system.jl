@@ -25,7 +25,6 @@ struct RealMeasurementFunction end
 Define system ENKF which performs the
 
 
-
 Fields:
  - 'f' : propagation function
 
@@ -50,9 +49,6 @@ Fields:
  - 'isaugmented' : Bool = true if measurement function is nonlinear,
      = false otherwise
 """
-
-
-
 mutable struct ENKF{N, NZ}
 
     # "Ensemble of states"
@@ -90,7 +86,9 @@ mutable struct ENKF{N, NZ}
 end
 
 
-" Define action of ENKF on EnsembleState "
+"""
+    Define action of ENKF on EnsembleState
+"""
 function (enkf::ENKF{N, NZ})(t::Float64,
          Δt::Float64,
          ens::EnsembleState{N, TS}) where {N, NZ, TS}

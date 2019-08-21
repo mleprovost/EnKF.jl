@@ -8,13 +8,6 @@ import Statistics: mean, var, std
 export EnsembleState!, EnsembleState, deviation!, deviation, cut, fill!
 
 
-"""
-Define abstract type State for state vector
-"""
-
-# abstract type State end
-
-
 
 """
     EnsembleState
@@ -27,9 +20,6 @@ Fields:
 
 - 'S' : Array of the different members
 """
-
-
-
 mutable struct EnsembleState{N,TS}
     " Array of the different ensemble members"
     S::Array{TS,1}
@@ -54,7 +44,9 @@ size(ENS::EnsembleState{N, TS})  where {N, TS} = N, size(ENS.S[1])
 
 length(ENS::EnsembleState{N, TS})  where {N, TS} = N
 
-"Return the mean of all the ensemble members"
+"""
+    Return the mean of all the ensemble members
+"""
 mean(ENS::EnsembleState{N, TS})  where {N, TS} = mean(ENS.S)
 
 
@@ -83,13 +75,18 @@ function deviation(tabfluc::Array{TS,2}, ENS::EnsembleState{N, TS})  where {N, T
    return tabfluc
 end
 
-" Extend definition of hcat to EnsembleState"
+"""
+    Extend definition of hcat to EnsembleState
+"""
 function hcat(ENS::EnsembleState{N, TS})  where {N, TS}
    return hcat(ENS.S...)
 end
 
 
-" Cut an array along the different columns and create an EnsembleState variable with these columns"
+"""
+    Cut an array along the different columns and create an EnsembleState
+    variable with these columns
+"""
 function cut(A::AbstractMatrix{TR}) where {TR}
     # Get size of A = (length of state vector, number of ensemble members)
         NS, N = size(A)
@@ -113,16 +110,18 @@ end
 
 
 
-"Define addition of two EnsembleState"
-
+"""
+    Define addition of two EnsembleState
+"""
 function (+)(A::EnsembleState{N, TS}, B::EnsembleState{N, TS}) where {N, TS}
     C = deepcopy(A)
     C.S .+= B.S
     return C
 end
 
-"Define addition of an Array and an EnsembleState"
-
+"""
+    Define addition of an Array and an EnsembleState
+"""
 function (+)(A::EnsembleState{N, TS}, B::TS) where {N, TS}
     C = deepcopy(A)
     for s in C.S
@@ -132,16 +131,18 @@ function (+)(A::EnsembleState{N, TS}, B::TS) where {N, TS}
 end
 
 
-"Define substraction of two EnsembleState"
-
+"""
+    Define substraction of two EnsembleState
+"""
 function (-)(A::EnsembleState{N, TS}, B::EnsembleState{N, TS}) where {N, TS}
     C = deepcopy(A)
     C.S .-= B.S
     return C
 end
 
-"Define substraction of an Array from an EnsembleState"
-
+"""
+    Define substraction of an Array from an EnsembleState
+"""
 function (-)(A::EnsembleState{N, TS}, B::TS) where {N, TS}
     C = deepcopy(A)
     for s in C.S
