@@ -1,4 +1,4 @@
-The Whirl.jl package is licensed under the MIT "Expat" License:
+The EnKF.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2019: Mathieu Le Provost.
 >
