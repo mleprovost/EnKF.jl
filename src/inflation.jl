@@ -309,7 +309,7 @@ Define action of RTPSInflation : x'ᵢᵃ <- x'ᵢᵃ + β*(σᵇᵢ - σᵃᵢ)
 function (R::RTPSInflation)(ENS::EnsembleState{N, TS}, σᵇ::Array{T, 1}, σᵃ::Array{T, 1}) where {N, TS, T}
     Ŝ = deepcopy(mean(ENS))
     for s in ENS.S
-        s .= Ŝ .+ (s .- Ŝ)*R.β*(1 .- σᵃ./σᵇ)
+        @. s = Ŝ + (s - Ŝ)*(1 + R.β*(σᵇ/σᵃ - 1))
     end
     return ENS
 end
@@ -341,7 +341,7 @@ Define action of RTPSAdditiveInflation after the analysis: x'ᵢᵃ <- x'ᵢᵃ 
 function (R::RTPSAdditiveInflation)(ENS::EnsembleState{N, TS}, σᵇ::Array{T, 1}, σᵃ::Array{T, 1}) where {N, TS, T}
     Ŝ = deepcopy(mean(ENS))
     for s in ENS.S
-        s .= Ŝ .+ (s .- Ŝ)*R.β*(1 .- σᵃ./σᵇ)
+        @. s = Ŝ + (s - Ŝ)*(1 + R.β*(σᵇ/σᵃ - 1))
     end
     return ENS
 end

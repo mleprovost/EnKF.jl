@@ -124,7 +124,8 @@ function (enkf::ENKF{N, NZ})(t::Float64,
 
     " Additional computing for RTPS inflation"
     if typeof(enkf.A)<:Union{RTPSInflation, RTPSAdditiveInflation}
-        σᵇ = std(ensfluc, corrected=true)
+        # correct scaling by 1/N-1 instead of 1/N for small ensembles
+        σᵇ = std(ensfluc.S, corrected=false)
     end
 
 
@@ -183,7 +184,7 @@ function (enkf::ENKF{N, NZ})(t::Float64,
     " Additional computing for RTPS inflation"
     if typeof(enkf.A)<:Union{RTPSInflation, RTPSAdditiveInflation}
         deviation(ensfluc, ens)
-        σᵃ = std(ensfluc, corrected=true)
+        σᵃ = std(ensfluc.S, corrected=false)
         enkf.A(ens, σᵇ, σᵃ)
     end
 
