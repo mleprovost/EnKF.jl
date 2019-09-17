@@ -183,6 +183,7 @@ function (enkf::ENKF{N, NZ})(t::Float64,
 
     " Additional computing for RTPS inflation"
     if typeof(enkf.A)<:Union{RTPSInflation, RTPSAdditiveInflation}
+        ensfluc = EnsembleState(N, ens.S[1])
         deviation(ensfluc, ens)
         σᵃ = std(ensfluc.S, corrected=false)
         enkf.A(ens, σᵇ, σᵃ)

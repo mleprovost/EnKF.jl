@@ -306,6 +306,10 @@ end
 """
 Define action of RTPSInflation : x'ᵢᵃ <- x'ᵢᵃ + β*(σᵇᵢ - σᵃᵢ)/σᵇᵢ
 """
+function (R::RTPSInflation)(ENS::EnsembleState{N, TS}) where {N, TS}
+    nothing
+end
+
 function (R::RTPSInflation)(ENS::EnsembleState{N, TS}, σᵇ::Array{T, 1}, σᵃ::Array{T, 1}) where {N, TS, T}
     Ŝ = deepcopy(mean(ENS))
     for s in ENS.S
