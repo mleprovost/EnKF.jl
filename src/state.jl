@@ -5,7 +5,7 @@ import Base: size, length, hcat, +, -, fill!
 
 import Statistics: mean, var, std
 
-export EnsembleState!, EnsembleState, deviation!, deviation, cut, fill!
+export EnsembleState!, EnsembleState, deviation!, deviation, cut, fill!, std
 
 
 
@@ -48,6 +48,7 @@ length(ENS::EnsembleState{N, TS})  where {N, TS} = N
     Return the mean of all the ensemble members
 """
 mean(ENS::EnsembleState{N, TS})  where {N, TS} = mean(ENS.S)
+std(ENS::EnsembleState{N, TS})  where {N, TS} = std(ENS.S)
 
 
 function deviation!(ENS::EnsembleState{N, TS})  where {N, TS}

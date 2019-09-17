@@ -10,7 +10,8 @@ import Distributions
 import Random: AbstractRNG
 
 export InflationType, IdentityInflation, AdditiveInflation, MultiplicativeInflation,
-        MultiAdditiveInflation, TupleProduct, Mixed, ParametersInflation, RecipeInflation
+        MultiAdditiveInflation, TupleProduct, Mixed, ParametersInflation,
+        RecipeInflation, RTPSInflation, RTPSAdditiveInflation
 
 """
     InflationType
@@ -276,7 +277,7 @@ A structure to generate covariance inflation distribution from parameters p
 
 
 # Fields:
-- 'p' : Vector{Float64}
+- 'p' :: Vector of parameters
 
 """
 mutable struct RecipeInflation
@@ -286,3 +287,73 @@ end
 # function RecipeInflation(p::AbstractVector)
 #     return RecipeInflation(p)
 # end
+
+
+"""
+    RTPSInflation
+
+A structure for RTPS inflation
+
+# Fields:
+- 'β' :: RTPS multiplicative inflation factor
+
+"""
+mutable struct RTPSInflation <: InflationType
+    "RTPS multiplicative inflation factor β"
+    β::Real
+end
+
+"""
+Define action of RTPSInflation : x'ᵢᵃ <- x'ᵢᵃ + β*(σᵇᵢ - σᵃᵢ)/σᵇᵢ
+"""
+function (R::RTPSInflation)(ENS::EnsembleState{N, TS}, σᵇ::Array{T, 1}, σᵃ::Array{T, 1}) where {N, TS, T}
+    Ŝ = deepcopy(mean(ENS))
+    for s in ENS.S
+        s .= Ŝ .+ (s .- Ŝ)*R.β*(1 .- σᵃ./σᵇ)
+    end
+    return ENS
+end
+
+
+"""
+    RTPSAdditiveInflation
+
+A structure for RTPS and Additive inflation
+
+# Fields:
+- 'β' :: RTPS multiplicative inflation factor
+
+- 'α'' :: Distribution of the additive inflation
+
+"""
+mutable struct RTPSAdditiveInflation <: InflationType
+    "RTPS multiplicative inflation factor"
+    β::Real
+
+    "Distribution of the additive inflation α"
+    α::MultivariateDistribution
+end
+
+"""
+Only the RTPS inflation after the analysis stage
+Define action of RTPSAdditiveInflation after the analysis: x'ᵢᵃ <- x'ᵢᵃ + β*(σᵇᵢ - σᵃᵢ)/σᵇᵢ
+"""
+function (R::RTPSAdditiveInflation)(ENS::EnsembleState{N, TS}, σᵇ::Array{T, 1}, σᵃ::Array{T, 1}) where {N, TS, T}
+    Ŝ = deepcopy(mean(ENS))
+    for s in ENS.S
+        s .= Ŝ .+ (s .- Ŝ)*R.β*(1 .- σᵃ./σᵇ)
+    end
+    return ENS
+end
+
+"""
+Only the additive inflation before the analysis stage
+Define action of RTPSAdditiveInflation before the analysis: x <- x + α
+
+"""
+function (R::RTPSAdditiveInflation)(ENS::EnsembleState{N, TS}) where {N, TS, T}
+    for s in ENS.S
+        s .+= rand(R.α)
+    end
+    return ENS
+end

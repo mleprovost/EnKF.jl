@@ -22,7 +22,8 @@ struct RealMeasurementFunction end
 
 
 """"
-Define system ENKF which performs the
+Define system ENKF which performs the data assimilation
+using the stochastic ensemble Kalman filter
 
 
 Fields:
@@ -80,6 +81,7 @@ mutable struct ENKF{N, NZ}
 
     "Boolean: is state vector augmented"
     isaugmented::Bool
+
     # "Bounds on certain state"
     # bounds
 
@@ -119,6 +121,12 @@ function (enkf::ENKF{N, NZ})(t::Float64,
     deviation(ensfluc, ens)
 
     A′ = hcat(ensfluc)
+
+    " Additional computing for RTPS inflation"
+    if typeof(enkf.A)<:Union{RTPSInflation, RTPSAdditiveInflation}
+        σᵇ = std(ensfluc, corrected=true)
+    end
+
 
     # println("good deviation")
 
@@ -171,6 +179,13 @@ function (enkf::ENKF{N, NZ})(t::Float64,
 
     "Analysis step"
     ens += cut(Bᵀb)
+
+    " Additional computing for RTPS inflation"
+    if typeof(enkf.A)<:Union{RTPSInflation, RTPSAdditiveInflation}
+        deviation(ensfluc, ens)
+        σᵃ = std(ensfluc, corrected=true)
+        enkf.A(ens, σᵇ, σᵃ)
+    end
 
     "State filtering if 'isfiltered==true' "
     if enkf.isfiltered ==true
