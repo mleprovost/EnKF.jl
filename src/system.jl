@@ -112,8 +112,6 @@ function (enkf::ENKF{N, NZ})(t::Float64,
     end
     # println("good filtering")
 
-
-
     "Compute mean and deviation"
 
     ensfluc = EnsembleState(N, ens.S[1])
@@ -123,7 +121,7 @@ function (enkf::ENKF{N, NZ})(t::Float64,
     A′ = hcat(ensfluc)
 
     " Additional computing for RTPS inflation"
-    if typeof(enkf.A)<:Union{RTPSInflation, RTPSAdditiveInflation}
+    if typeof(enkf.A)<:Union{RTPSInflation, RTPSAdditiveInflation, RTPSRecipeInflation}
         # correct scaling by 1/N-1 instead of 1/N for small ensembles
         σᵇ = std(ensfluc.S, corrected=false)
     end
@@ -182,7 +180,7 @@ function (enkf::ENKF{N, NZ})(t::Float64,
     ens += cut(Bᵀb)
 
     " Additional computing for RTPS inflation"
-    if typeof(enkf.A)<:Union{RTPSInflation, RTPSAdditiveInflation}
+    if typeof(enkf.A)<:Union{RTPSInflation, RTPSAdditiveInflation, RTPSRecipeInflation}
         ensfluc = EnsembleState(N, ens.S[1])
         deviation(ensfluc, ens)
         σᵃ = std(ensfluc.S, corrected=false)

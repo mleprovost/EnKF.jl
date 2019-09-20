@@ -11,7 +11,7 @@ import Random: AbstractRNG
 
 export InflationType, IdentityInflation, AdditiveInflation, MultiplicativeInflation,
         MultiAdditiveInflation, TupleProduct, Mixed, ParametersInflation,
-        RecipeInflation, RTPSInflation, RTPSAdditiveInflation
+        RecipeInflation, RTPSInflation, RTPSAdditiveInflation, RTPSRecipeInflation
 
 """
     InflationType
@@ -240,13 +240,15 @@ end
 
  ### Code from LowLevelParticleFilters.jl to define tuple of Distributions
 """
- Mixed value support indicates that the distribution is a mix of continuous and discrete dimensions.
+ Mixed value support indicates that the distribution is a mix of continuous and
+ discrete dimensions.
 """
 struct Mixed <: ValueSupport end
 
 """
     TupleProduct(v::NTuple{N,UnivariateDistribution})
-Create a product distribution where the individual distributions are stored in a tuple. Supports mixed/hybrid Continuous and Discrete distributions
+Create a product distribution where the individual distributions are stored in
+a tuple. Supports mixed/hybrid Continuous and Discrete distributions
 """
 struct TupleProduct{N,S,V<:NTuple{N,UnivariateDistribution}} <: MultivariateDistribution{S}
     v::V
@@ -259,7 +261,8 @@ struct TupleProduct{N,S,V<:NTuple{N,UnivariateDistribution}} <: MultivariateDist
     end
 end
 Base.length(d::TupleProduct{N}) where N = N
-Distributions._rand!(rng::AbstractRNG, d::TupleProduct, x::AbstractVector{<:Real}) =     broadcast!(dn->rand(rng, dn), x, d.v)
+Distributions._rand!(rng::AbstractRNG, d::TupleProduct, x::AbstractVector{<:Real}) =
+                    broadcast!(dn->rand(rng, dn), x, d.v)
 @generated function Distributions._logpdf(d::TupleProduct{N}, x::AbstractVector{<:Real}) where N
     :(Base.Cartesian.@ncall $N Base.:+ i->logpdf(d.v[i], x[i]))
 end
@@ -304,13 +307,14 @@ mutable struct RTPSInflation <: InflationType
 end
 
 """
-Define action of RTPSInflation : x'ᵢᵃ <- x'ᵢᵃ + β*(σᵇᵢ - σᵃᵢ)/σᵇᵢ
+Define action of RTPSInflation : xᵃ <- x̄ᵃ + (xᵃ-x̄ᵃ)* (1 + β*(σᵇᵢ - σᵃᵢ)/σᵇᵢ)
 """
 function (R::RTPSInflation)(ENS::EnsembleState{N, TS}) where {N, TS}
     nothing
 end
 
-function (R::RTPSInflation)(ENS::EnsembleState{N, TS}, σᵇ::Array{T, 1}, σᵃ::Array{T, 1}) where {N, TS, T}
+function (R::RTPSInflation)(ENS::EnsembleState{N, TS}, σᵇ::Array{T, 1},
+                            σᵃ::Array{T, 1}) where {N, TS, T}
     Ŝ = deepcopy(mean(ENS))
     for s in ENS.S
         @. s = Ŝ + (s - Ŝ)*(1 + R.β*(σᵇ/σᵃ - 1))
@@ -327,7 +331,7 @@ A structure for RTPS and Additive inflation
 # Fields:
 - 'β' :: RTPS multiplicative inflation factor
 
-- 'α'' :: Distribution of the additive inflation
+- 'α' :: Distribution of the additive inflation
 
 """
 mutable struct RTPSAdditiveInflation <: InflationType
@@ -339,25 +343,65 @@ mutable struct RTPSAdditiveInflation <: InflationType
 end
 
 """
-Only the RTPS inflation after the analysis stage
-Define action of RTPSAdditiveInflation after the analysis: x'ᵢᵃ <- x'ᵢᵃ + β*(σᵇᵢ - σᵃᵢ)/σᵇᵢ
+RTPS and additive inflation after the analysis stage
+Define action of RTPSAdditiveInflation after the analysis:
+xᵃ <- x̄ᵃ + (xᵃ-x̄ᵃ)* (1 + β*(σᵇᵢ - σᵃᵢ)/σᵇᵢ) + α
 """
-function (R::RTPSAdditiveInflation)(ENS::EnsembleState{N, TS}, σᵇ::Array{T, 1}, σᵃ::Array{T, 1}) where {N, TS, T}
+function (R::RTPSAdditiveInflation)(ENS::EnsembleState{N, TS}, σᵇ::Array{T, 1},
+                                    σᵃ::Array{T, 1}) where {N, TS, T}
     Ŝ = deepcopy(mean(ENS))
     for s in ENS.S
         @. s = Ŝ + (s - Ŝ)*(1 + R.β*(σᵇ/σᵃ - 1))
+         s .+= rand(R.α)
     end
     return ENS
 end
 
-"""
-Only the additive inflation before the analysis stage
-Define action of RTPSAdditiveInflation before the analysis: x <- x + α
+
+# """
+# Only the additive inflation before the analysis stage
+# Define action of RTPSAdditiveInflation before the analysis: x <- x + α
+#
+# """
+function (R::RTPSAdditiveInflation)(ENS::EnsembleState{N, TS}) where {N, TS, T}
+    # for s in ENS.S
+    #     s .+= rand(R.α)
+    # end
+    # return ENS
+    nothing
+end
+
+
+
+
+
+################################################################################
 
 """
-function (R::RTPSAdditiveInflation)(ENS::EnsembleState{N, TS}) where {N, TS, T}
+    RTPSRecipeInflation
+
+A structure for RTPS and Recipe inflation
+
+# Fields:
+- 'β' :: RTPS multiplicative inflation factor
+
+- 'p' :: Vector of parameters
+
+"""
+mutable struct RTPSRecipeInflation <: InflationType
+    "RTPS multiplicative inflation factor"
+    β::Real
+
+    "Vector of parameters for Recipe Inflation"
+    p::Vector{Real}
+end
+
+
+function (R::RTPSRecipeInflation)(ENS::EnsembleState{N, TS}, σᵇ::Array{T, 1},
+                                    σᵃ::Array{T, 1}) where {N, TS, T}
+    Ŝ = deepcopy(mean(ENS))
     for s in ENS.S
-        s .+= rand(R.α)
+        @. s = Ŝ + (s - Ŝ)*(1 + R.β*(σᵇ/σᵃ - 1))
     end
     return ENS
 end
