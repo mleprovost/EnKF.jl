@@ -10,5 +10,8 @@ include("inflation.jl")
 
 include("system.jl")
 
+include("stochasticEnKF.jl")
+
+include("ETKF.jl")
 
 end # module
