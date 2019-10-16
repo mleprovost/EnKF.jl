@@ -63,6 +63,9 @@ mutable struct ENKF{N, NZ}
     "Measurement noise distribution"
     ϵ::AdditiveInflation{NZ}
 
+    "Boolean: is data assimilation used"
+    isenkf::Bool
+
     "Boolean: is state vector inflated"
     isinflated::Bool
 
@@ -88,14 +91,15 @@ function (enkf::ENKF{N, NZ})(t::Float64,
     "Propagate each ensemble member"
     enkf.f(t, ens)
 
+    "Is data assimilation used"
+    if enkf.isenkf ==true
 
     # println("good prop")
     "Covariance inflation if 'isinflated==true' "
     if enkf.isinflated ==true
         enkf.A(ens)
     end
-    # println("good inflation")
-
+    # prin
     "State filtering if 'isfiltered==true' "
     if enkf.isfiltered ==true
         enkf.G(ens)
@@ -142,6 +146,7 @@ function (enkf::ENKF{N, NZ})(t::Float64,
     "Get actual measurement"
     zens = EnsembleState(N, zeros(NZ))
     enkf.z(t+Δt, zens)
+    # @show zens
     # println("good actual measurement")
 
     "Perturb actual measurement"
@@ -190,13 +195,18 @@ function (enkf::ENKF{N, NZ})(t::Float64,
 
     return t+Δt, ens, A′*A′'
 
+
+    else
+        return t+Δt, ens
+    end
+
 end
 
 
 # Create constructor for ENKF
 
-function ENKF(N, NZ, f, A, G, m, z, ϵ, isinflated, isfiltered, isaugmented)
-    return ENKF{N, NZ}(f, A, G, m, z, ϵ, isinflated, isfiltered, isaugmented)
+function ENKF(N, NZ, f, A, G, m, z, ϵ; isenkf::Bool= true, isinflated::Bool = false, isfiltered::Bool = false, isaugmented::Bool = false)
+    return ENKF{N, NZ}(f, A, G, m, z, ϵ, isenkf, isinflated, isfiltered, isaugmented)
 end
 
 

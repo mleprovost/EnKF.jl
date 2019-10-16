@@ -23,7 +23,7 @@ end
 function initialize(N::Int, NS::Int)
     # pre-allocate space
     ENS = EnsembleState(N, zeros(NS))
-    
+
     Dist = MvNormal(zeros(NS), I)
     ENS.S .= [rand(Dist) for i = 1:N]
     return ENS

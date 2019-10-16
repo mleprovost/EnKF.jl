@@ -115,6 +115,7 @@ VortexENKFfilter = FilteringFunction()
 
 function VortexENKF(N, NZ, ri, m, z, ϵ)
 
-    return ENKF{N, NZ}(VortexENKFprop, ri, VortexENKFfilter, m, z, ϵ, true, true, true)
+#     return ENKF{N, NZ}(VortexENKFprop, ri, VortexENKFfilter, m, z, ϵ, true, true, true)
 
+    return ENKF{N, NZ}(VortexENKFprop, ri, VortexENKFfilter, m, z, ϵ, true, true, true, true);
 end
